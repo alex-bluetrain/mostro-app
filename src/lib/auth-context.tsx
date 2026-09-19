@@ -1,5 +1,7 @@
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 import {
   createContext,
   useCallback,
@@ -13,7 +15,9 @@ import { GOOGLE_WEB_CLIENT_ID } from '@/constants/auth';
 import { AuthError, fetchMe, type MostroUser } from '@/lib/mostro-client';
 import { clearIdToken, getIdToken, setIdToken } from '@/lib/token-storage';
 
-WebBrowser.maybeCompleteAuthSession();
+GoogleSignin.configure({
+  webClientId: GOOGLE_WEB_CLIENT_ID,
+});
 
 type AuthState = {
   user: MostroUser | null;
@@ -31,10 +35,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<MostroUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: GOOGLE_WEB_CLIENT_ID,
-  });
 
   const loadUser = useCallback(async (idToken: string) => {
     setError(null);
@@ -62,27 +62,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
   }, [loadUser]);
 
-  useEffect(() => {
-    if (response?.type !== 'success') {
-      return;
-    }
-    const idToken = response.params.id_token;
-    if (!idToken) {
-      setError('No se recibió id_token de Google.');
-      return;
-    }
-    (async () => {
+  const signIn = useCallback(async () => {
+    setError(null);
+    try {
+      await GoogleSignin.hasPlayServices();
+      const result = await GoogleSignin.signIn();
+      const idToken = result.data?.idToken;
+      if (!idToken) {
+        setError('No se recibió id_token de Google.');
+        return;
+      }
       await setIdToken(idToken);
       await loadUser(idToken);
-    })();
-  }, [response, loadUser]);
-
-  const signIn = useCallback(() => {
-    setError(null);
-    promptAsync();
-  }, [promptAsync]);
+    } catch (e: any) {
+      if (e?.code === statusCodes.SIGN_IN_CANCELLED) {
+        return;
+      }
+      setError(e instanceof Error ? e.message : 'Error al iniciar sesión.');
+    }
+  }, [loadUser]);
 
   const signOut = useCallback(async () => {
+    try {
+      await GoogleSignin.signOut();
+    } catch {
+      // ignore
+    }
     await clearIdToken();
     setUser(null);
     setError(null);
@@ -94,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         loading,
         error,
-        requestReady: !!request,
+        requestReady: true,
         signIn,
         signOut,
         renderGoogleButton: () => {},
