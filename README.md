@@ -41,6 +41,18 @@ This command will move the starter code to the **app-example** directory and cre
 - If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
 - Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
 
+## Known limitations / TODO
+
+Auth (Google Sign-In → Bearer id_token → mostro `/users/me`) works on web and Android, but a
+few things are intentionally deferred:
+
+- **Web token storage is memory-only.** `src/lib/token-storage.web.ts` keeps the id_token in
+  memory, so a page refresh logs the user out. Phase 2: persist via an httpOnly cookie / SSO flow.
+- **No token refresh.** id_tokens expire (~1h) and there is no silent re-auth yet; the user must
+  sign in again. Phase 2 (SSO/cookie flow) addresses this.
+- **Backend does not cryptographically verify the id_token** (see mostro repo TODO). Until that
+  ships, this app must only talk to a trusted mostro backend.
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
