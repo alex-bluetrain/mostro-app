@@ -11,18 +11,20 @@ import {
   type ReactNode,
 } from 'react';
 
-import { GOOGLE_WEB_CLIENT_ID } from '@/constants/auth';
+import { GOOGLE_CLIENT_ID } from '@/constants/auth';
 import { AuthError, fetchMe, type MostroUser } from '@/lib/mostro-client';
 import { clearIdToken, getIdToken, setIdToken } from '@/lib/token-storage';
 
 GoogleSignin.configure({
-  webClientId: GOOGLE_WEB_CLIENT_ID,
+  webClientId: GOOGLE_CLIENT_ID,
 });
 
-type AuthState = {
+export type AuthState = {
   user: MostroUser | null;
   loading: boolean;
   error: string | null;
+  // Solo lo usa la variante web (GIS renderButton). En native es no-op para
+  // que el AuthGate compartido tenga un contrato único entre plataformas.
   requestReady: boolean;
   signIn: () => void;
   signOut: () => Promise<void>;

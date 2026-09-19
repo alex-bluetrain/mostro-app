@@ -1,6 +1,6 @@
-export const GOOGLE_WEB_CLIENT_ID =
-  '192249434965-6gtn7583b13krmrsjkeb0j577i4vmnp6.apps.googleusercontent.com';
+export const GOOGLE_CLIENT_ID =
+  process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID!;
 
-export const MOSTRO_URL = 'https://<NGROK_DOMAIN>';
+export const MOSTRO_URL = process.env.EXPO_PUBLIC_MOSTRO_URL!;
 
 export const ID_TOKEN_STORAGE_KEY = 'mostro.id_token';

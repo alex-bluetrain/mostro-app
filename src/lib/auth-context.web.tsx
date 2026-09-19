@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 
-import { GOOGLE_WEB_CLIENT_ID } from '@/constants/auth';
+import { GOOGLE_CLIENT_ID } from '@/constants/auth';
 import { AuthError, fetchMe, type MostroUser } from '@/lib/mostro-client';
 import { clearIdToken, getIdToken, setIdToken } from '@/lib/token-storage';
 
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
       idApi.initialize({
-        client_id: GOOGLE_WEB_CLIENT_ID,
+        client_id: GOOGLE_CLIENT_ID,
         callback: handleCredential,
       });
       idApiRef.current = idApi;
