@@ -15,6 +15,11 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
     <Text
       style={[
         { color: theme[themeColor ?? 'text'] },
+        // react-native-web inyecta su propio stack de sistema en cada Text
+        // (.css-text-*), que gana sobre el font-family del body. Declararlo acá
+        // es lo unico que hace que la web use --font-display. En nativo no se
+        // toca: iOS y Android ya resuelven la fuente de UI solos.
+        Platform.OS === 'web' && { fontFamily: Fonts.sans },
         type === 'default' && styles.default,
         type === 'title' && styles.title,
         type === 'small' && styles.small,

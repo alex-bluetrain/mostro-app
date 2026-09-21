@@ -23,7 +23,7 @@ type KeyPressEvent = NativeSyntheticEvent<TextInputKeyPressEventData> & {
 };
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
@@ -69,6 +69,8 @@ export function Composer({ disabled, onSend }: Props) {
             borderRadius: Radius.capsule,
             borderCurve: 'continuous',
           },
+          // Igual que ThemedText: en web el TextInput trae el stack de RNW.
+          Platform.OS === 'web' && { fontFamily: Fonts.sans },
         ]}
         value={value}
         onChangeText={setValue}
