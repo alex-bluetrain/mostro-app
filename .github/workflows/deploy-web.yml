@@ -55,8 +55,11 @@ jobs:
           CF_ACCOUNT=$(get CLOUDFLARE_ACCOUNT_ID)
           GOOGLE_CLIENT_ID=$(get GOOGLE_CLIENT_ID)
           MOSTRO_URL=$(get MOSTRO_URL)
+          # Mask secrets in logs. add-mask is a workflow command that must go to
+          # stdout, NOT to $GITHUB_ENV (writing it there is an invalid env format).
+          echo "::add-mask::$CF_TOKEN"
+          echo "::add-mask::$CF_ACCOUNT"
           {
-            echo "::add-mask::$CF_TOKEN"
             echo "CLOUDFLARE_API_TOKEN=$CF_TOKEN"
             echo "CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT"
           } >> "$GITHUB_ENV"
