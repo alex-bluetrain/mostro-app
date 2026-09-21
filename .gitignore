@@ -42,3 +42,9 @@ example
 # generated native folders
 /ios
 /android
+
+# coding-agent artifacts (skills, plans, agent config — not product code)
+.agents/
+.claude/
+.mastracode/
+skills-lock.json
