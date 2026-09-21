@@ -12,6 +12,8 @@ import {
 } from 'react';
 
 import { GOOGLE_CLIENT_ID } from '@/constants/auth';
+import i18n from '@/i18n';
+import { logger } from '@/lib/logger';
 import { AuthError, fetchMe, type MostroUser } from '@/lib/mostro-client';
 import { clearIdToken, getIdToken, setIdToken } from '@/lib/token-storage';
 
@@ -27,6 +29,9 @@ export type AuthState = {
   // que el AuthGate compartido tenga un contrato único entre plataformas.
   requestReady: boolean;
   signIn: () => void;
+  // Dev-only: autenticar pegando una API key (SimpleAuth token) en vez de
+  // pasar por Google. La key se manda como Bearer igual que un id_token.
+  signInWithApiKey: (apiKey: string) => Promise<void>;
   signOut: () => Promise<void>;
   renderGoogleButton: (parent: HTMLElement | null) => void;
 };
@@ -38,27 +43,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadUser = useCallback(async (idToken: string) => {
-    setError(null);
-    try {
-      const me = await fetchMe(idToken);
-      setUser(me);
-    } catch (e) {
-      if (e instanceof AuthError) {
-        await clearIdToken();
-        setUser(null);
-        setError('Tu email no está invitado a mostro.');
-      } else {
-        setError(e instanceof Error ? e.message : 'Error desconocido');
+  // `silent` is used by the boot session-check: a stale stored token or an
+  // unreachable backend on cold start must NOT paint an error — just fall back
+  // to the login screen. Explicit user actions (Google / API key) pass
+  // silent:false so the friendly message is shown.
+  const loadUser = useCallback(
+    async (idToken: string, opts?: { silent?: boolean }) => {
+      const silent = opts?.silent ?? false;
+      setError(null);
+      try {
+        const me = await fetchMe(idToken);
+        setUser(me);
+      } catch (e) {
+        if (e instanceof AuthError) {
+          await clearIdToken();
+          setUser(null);
+          setError(silent ? null : i18n.t('auth.notInvited'));
+        } else {
+          // BackendError / network / unknown. Technical detail is already
+          // logged in fetchMe; the UI only ever sees the friendly string.
+          setError(silent ? null : i18n.t('auth.connectionFailed'));
+        }
       }
-    }
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
     (async () => {
       const stored = await getIdToken();
       if (stored) {
-        await loadUser(stored);
+        await loadUser(stored, { silent: true });
       }
       setLoading(false);
     })();
@@ -71,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await GoogleSignin.signIn();
       const idToken = result.data?.idToken;
       if (!idToken) {
-        setError('No se recibió id_token de Google.');
+        setError(i18n.t('auth.noIdToken'));
         return;
       }
       await setIdToken(idToken);
@@ -80,9 +95,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (e?.code === statusCodes.SIGN_IN_CANCELLED) {
         return;
       }
-      setError(e instanceof Error ? e.message : 'Error al iniciar sesión.');
+      logger.error('Google sign-in failed', e);
+      setError(i18n.t('auth.signInFailed'));
     }
   }, [loadUser]);
+
+  const signInWithApiKey = useCallback(
+    async (apiKey: string) => {
+      const key = apiKey.trim();
+      if (!key) {
+        setError(i18n.t('auth.enterApiKey'));
+        return;
+      }
+      await setIdToken(key);
+      await loadUser(key);
+    },
+    [loadUser],
+  );
 
   const signOut = useCallback(async () => {
     try {
@@ -103,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error,
         requestReady: true,
         signIn,
+        signInWithApiKey,
         signOut,
         renderGoogleButton: () => {},
       }}
