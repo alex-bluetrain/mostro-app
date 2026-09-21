@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,7 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AssistantMessage } from '@/components/chat/assistant-message';
 import { Composer } from '@/components/chat/composer';
 import { UserMessage } from '@/components/chat/user-message';
-import { LanguageSelector } from '@/components/language-selector';
+import { MenuButton } from '@/components/menu-button';
+import { SettingsDrawer } from '@/components/settings/settings-drawer';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -16,6 +17,7 @@ export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { messages, isRunning, sendMessage } = useMostroChat();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Inverted list renders newest at the bottom, so feed it reversed order.
   const data = useMemo(() => [...messages].reverse(), [messages]);
@@ -33,10 +35,10 @@ export default function ChatScreen() {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={insets.top}>
+        <View style={styles.header}>
+          <MenuButton onPress={() => setMenuOpen(true)} />
+        </View>
         <View style={styles.centered}>
-          <View style={styles.header}>
-            <LanguageSelector />
-          </View>
           {data.length === 0 ? (
             <View style={styles.empty}>
               <ThemedText type="subtitle">{t('chat.emptyState')}</ThemedText>
@@ -56,6 +58,7 @@ export default function ChatScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
+      <SettingsDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
     </ThemedView>
   );
 }
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.one,
   },
