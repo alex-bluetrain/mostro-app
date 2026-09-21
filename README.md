@@ -40,8 +40,6 @@ few things are intentionally deferred:
   memory, so a page refresh logs the user out. Phase 2: persist via an httpOnly cookie / SSO flow.
 - **No token refresh.** id_tokens expire (~1h) and there is no silent re-auth yet; the user must
   sign in again. Phase 2 (SSO/cookie flow) addresses this.
-- **Backend does not cryptographically verify the id_token** (see mostro repo TODO). Until that
-  ships, this app must only talk to a trusted mostro backend.
 
 ## Learn more
 
