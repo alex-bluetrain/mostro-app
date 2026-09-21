@@ -69,7 +69,7 @@ export function Composer({ disabled, onSend }: Props) {
             borderRadius: Radius.capsule,
             borderCurve: 'continuous',
           },
-          // Igual que ThemedText: en web el TextInput trae el stack de RNW.
+          // Same as ThemedText: on web the TextInput carries the RNW stack.
           Platform.OS === 'web' && { fontFamily: Fonts.sans },
         ]}
         value={value}
