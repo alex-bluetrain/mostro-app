@@ -24,12 +24,58 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # All secrets live in Infisical (project mostro, environment prod), not in
+      # GitHub secrets. Only the machine-identity bootstrap creds sit in GitHub.
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://artifacts-cli.infisical.com/setup.deb.sh' | sudo -E bash
+          sudo apt-get install -y infisical
+
+      # Universal Auth machine identity → short-lived token → pull the four values:
+      # two Cloudflare creds (for wrangler) and two runtime-config values (written
+      # to public/config.js so the web build serves them at runtime).
+      - name: Fetch secrets from Infisical
+        env:
+          INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
+          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+          INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          TOKEN=$(infisical login --method=universal-auth \
+            --client-id="$INFISICAL_CLIENT_ID" \
+            --client-secret="$INFISICAL_CLIENT_SECRET" \
+            --plain --silent)
+          get() {
+            infisical secrets get "$1" \
+              --token="$TOKEN" \
+              --projectId="$INFISICAL_PROJECT_ID" \
+              --env=prod --plain
+          }
+          CF_TOKEN=$(get CLOUDFLARE_API_TOKEN)
+          CF_ACCOUNT=$(get CLOUDFLARE_ACCOUNT_ID)
+          GOOGLE_CLIENT_ID=$(get GOOGLE_CLIENT_ID)
+          MOSTRO_URL=$(get MOSTRO_URL)
+          {
+            echo "::add-mask::$CF_TOKEN"
+            echo "CLOUDFLARE_API_TOKEN=$CF_TOKEN"
+            echo "CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT"
+          } >> "$GITHUB_ENV"
+          # Runtime config consumed by the web build (window.__MOSTRO_CONFIG__).
+          # Written before build so it is copied into dist/. These values are
+          # public by design (visible in the client).
+          cat > public/config.js <<EOF
+          window.__MOSTRO_CONFIG__ = {
+            GOOGLE_CLIENT_ID: '${GOOGLE_CLIENT_ID}',
+            MOSTRO_URL: '${MOSTRO_URL}',
+          };
+          EOF
+
       - name: Build web
         run: pnpm run build:web
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=mostro-expo

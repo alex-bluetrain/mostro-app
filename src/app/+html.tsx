@@ -31,6 +31,11 @@ export default function Root({ children }: PropsWithChildren) {
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        {/* Runtime config: sets window.__MOSTRO_CONFIG__ before the app bundle
+            runs. Synchronous (no async/defer) so top-level reads in
+            src/constants/auth.ts see it. Edit public/config.js on the host to
+            change config without a rebuild. */}
+        <script src="/config.js" />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no"

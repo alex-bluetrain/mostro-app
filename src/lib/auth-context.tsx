@@ -25,12 +25,12 @@ export type AuthState = {
   user: MostroUser | null;
   loading: boolean;
   error: string | null;
-  // Solo lo usa la variante web (GIS renderButton). En native es no-op para
-  // que el AuthGate compartido tenga un contrato único entre plataformas.
+  // Only the web variant uses this (GIS renderButton). On native it's a no-op
+  // so the shared AuthGate has a single contract across platforms.
   requestReady: boolean;
   signIn: () => void;
-  // Dev-only: autenticar pegando una API key (SimpleAuth token) en vez de
-  // pasar por Google. La key se manda como Bearer igual que un id_token.
+  // Dev-only: authenticate by pasting an API key (SimpleAuth token) instead of
+  // going through Google. The key is sent as Bearer just like an id_token.
   signInWithApiKey: (apiKey: string) => Promise<void>;
   signOut: () => Promise<void>;
   renderGoogleButton: (parent: HTMLElement | null) => void;
