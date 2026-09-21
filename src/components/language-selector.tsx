@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SUPPORTED_LANGUAGES, setAppLanguage, type AppLanguage } from '@/i18n';
 
@@ -53,6 +53,6 @@ const styles = StyleSheet.create({
   pill: {
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.one,
-    borderRadius: 14,
+    borderRadius: Radius.full,
   },
 });
