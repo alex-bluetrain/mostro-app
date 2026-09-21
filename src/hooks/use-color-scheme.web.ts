@@ -1,21 +1,29 @@
-import { useEffect, useState } from 'react';
-import { useColorScheme as useRNColorScheme } from 'react-native';
+import { useSyncExternalStore } from 'react';
+import { Appearance, type ColorSchemeName } from 'react-native';
 
 /**
  * To support static rendering, this value needs to be re-calculated on the client side for web
  */
-export function useColorScheme() {
-  const [hasHydrated, setHasHydrated] = useState(false);
 
-  useEffect(() => {
-    setHasHydrated(true);
-  }, []);
+function subscribe(onChange: () => void) {
+  const subscription = Appearance.addChangeListener(onChange);
+  return () => subscription.remove();
+}
 
-  const colorScheme = useRNColorScheme();
+// Appearance.getColorScheme() is typed as nullable for native; on web it always
+// resolves to 'light' or 'dark'. The fallback keeps the return type identical to
+// the native variant, which re-exports RN's useColorScheme(): ColorSchemeName.
+function getSnapshot(): ColorSchemeName {
+  return Appearance.getColorScheme() ?? 'unspecified';
+}
 
-  if (hasHydrated) {
-    return colorScheme;
-  }
-
+// React uses this for the prerender AND for the hydrating render, so the first
+// client paint matches the static HTML. It re-reads getSnapshot right after,
+// switching to the real scheme without a mismatch.
+function getServerSnapshot(): ColorSchemeName {
   return 'light';
+}
+
+export function useColorScheme() {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
