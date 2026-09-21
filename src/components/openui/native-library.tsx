@@ -423,13 +423,13 @@ const styles = StyleSheet.create({
   },
   callout: {
     padding: Spacing.three,
-    borderRadius: 12,
+    borderRadius: Radius.small,
     borderLeftWidth: 3,
     gap: Spacing.one,
   },
   codeBlock: {
     padding: Spacing.three,
-    borderRadius: 12,
+    borderRadius: Radius.small,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 200,
-    borderRadius: 12,
+    borderRadius: Radius.small,
   },
   list: {
     gap: Spacing.two,
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
-    borderRadius: 12,
+    borderRadius: Radius.small,
     alignItems: 'center',
   },
   buttonSecondary: {

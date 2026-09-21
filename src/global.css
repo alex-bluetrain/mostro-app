@@ -1,22 +1,20 @@
-/* Web only: en nativo Metro ignora este archivo.
+/* Web only: on native, Metro ignores this file.
  *
- * iOS y Android tienen fuente de UI garantizada (SF, Roboto); la web no: el
- * mismo stack cae en San Francisco, Segoe UI, Roboto o Liberation Sans segun
- * el SO. Inter se carga SOLO acá (el <link> vive en src/app/+html.tsx) para
- * que el render web sea previsible; nativo sigue con la del sistema y conserva
- * Dynamic Type. */
+ * iOS and Android have a guaranteed UI font (SF, Roboto); the web does not: the
+ * same stack falls back to San Francisco, Segoe UI, Roboto or Liberation Sans
+ * depending on the OS. Inter is loaded ONLY here (the <link> lives in
+ * src/app/+html.tsx) so the web render is predictable; native keeps the system
+ * font and preserves Dynamic Type. */
 :root {
   --font-display:
     Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
     Segoe UI Symbol, Noto Color Emoji;
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
 }
 
-/* react-native-web no setea font-family en Text, asi que hereda de body.
- * Esta es la unica linea que hace que la app use Inter. */
+/* react-native-web does not set font-family on Text, so it inherits from body.
+ * This is the only line that makes the app use Inter. */
 body {
   font-family: var(--font-display);
 }

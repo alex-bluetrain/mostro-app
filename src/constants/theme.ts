@@ -14,7 +14,10 @@ export const Colors = {
     backgroundElement: '#F0F0F3',
     backgroundSelected: '#E0E1E6',
     textSecondary: '#60646C',
-    tint: '#3c87f7',
+    // One step darker than the dark-theme tint: #3c87f7 on white is 3.5:1 and
+    // fails AA for normal text (linkPrimary and the send button label both hit
+    // it). #1f6feb is 4.6:1, and white on it is another 4.6:1.
+    tint: '#1f6feb',
     onTint: '#ffffff',
     error: '#e5484d',
     success: '#30a46c',
@@ -40,27 +43,21 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
+// Two families, which is all the app uses. `serif` and `rounded` were in the
+// Expo template and nothing ever referenced them.
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
     /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {
     sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
     mono: 'monospace',
   },
   web: {
     sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
     mono: 'var(--font-mono)',
   },
 });
@@ -76,6 +73,8 @@ export const Spacing = {
 } as const;
 
 export const Radius = {
+  // Small containers: callouts, code blocks, the API key field.
+  small: 12,
   card: 16,
   capsule: 22,
   full: 9999,
