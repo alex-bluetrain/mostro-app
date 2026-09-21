@@ -14,7 +14,7 @@ import { z } from 'zod/v4';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /**
@@ -92,14 +92,6 @@ const CardHeader = defineComponent({
   )) as Renderer<{ title?: string; subtitle?: string }>,
 });
 
-const CALLOUT_COLORS: Record<string, string> = {
-  info: '#3c87f7',
-  success: '#30a46c',
-  warning: '#f5a623',
-  error: '#e5484d',
-  neutral: '#60646C',
-};
-
 const Callout = defineComponent({
   name: 'Callout',
   props: z.object({
@@ -110,7 +102,15 @@ const Callout = defineComponent({
   }),
   description: 'Callout banner.',
   component: (({ props }) => {
-    const accent = CALLOUT_COLORS[props.variant] ?? CALLOUT_COLORS.info;
+    const theme = useTheme();
+    const calloutColors: Record<string, string> = {
+      info: theme.tint,
+      success: theme.success,
+      warning: theme.warning,
+      error: theme.error,
+      neutral: theme.textSecondary,
+    };
+    const accent = calloutColors[props.variant] ?? calloutColors.info;
     return (
       <ThemedView
         type="backgroundElement"
@@ -315,6 +315,7 @@ const Button = defineComponent({
   }),
   description: 'A clickable button.',
   component: (({ props }) => {
+    const theme = useTheme();
     const trigger = useTriggerAction();
     const destructive = props.type === 'destructive';
     const secondary = props.variant === 'secondary' || props.variant === 'tertiary';
@@ -322,13 +323,14 @@ const Button = defineComponent({
       <Pressable
         style={[
           styles.button,
-          secondary && styles.buttonSecondary,
-          destructive && styles.buttonDestructive,
+          { backgroundColor: theme.tint },
+          secondary && [styles.buttonSecondary, { borderColor: theme.tint }],
+          destructive && { backgroundColor: theme.error },
         ]}
         onPress={() => trigger(props.label, undefined, props.action as ActionPlan | undefined)}>
         <ThemedText
           type="smallBold"
-          style={{ color: secondary ? '#3c87f7' : '#ffffff' }}>
+          style={{ color: secondary ? theme.tint : theme.onTint }}>
           {props.label}
         </ThemedText>
       </Pressable>
@@ -423,7 +425,6 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     borderRadius: 12,
     borderLeftWidth: 3,
-    borderLeftColor: '#3c87f7',
     gap: Spacing.one,
   },
   codeBlock: {
@@ -457,16 +458,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
     borderRadius: 12,
-    backgroundColor: '#3c87f7',
     alignItems: 'center',
   },
   buttonSecondary: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#3c87f7',
-  },
-  buttonDestructive: {
-    backgroundColor: '#e5484d',
   },
   buttonsRow: {
     flexDirection: 'row',
@@ -484,6 +480,6 @@ const styles = StyleSheet.create({
   tag: {
     paddingVertical: Spacing.half,
     paddingHorizontal: Spacing.two,
-    borderRadius: 999,
+    borderRadius: Radius.full,
   },
 });
