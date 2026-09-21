@@ -14,7 +14,7 @@ import { LanguageSelector } from '@/components/language-selector';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { DEV_API_KEY_LOGIN } from '@/constants/auth';
-import { Radius, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth-context';
 
@@ -42,7 +42,11 @@ function ApiKeyLogin() {
         {t('auth.devApiKeyLabel')}
       </ThemedText>
       <TextInput
-        style={[styles.input, { borderColor: theme.border, color: theme.placeholder }]}
+        style={[
+          styles.input,
+          { borderColor: theme.border, color: theme.placeholder },
+          Platform.OS === 'web' && { fontFamily: Fonts.sans },
+        ]}
         value={apiKey}
         onChangeText={setApiKey}
         placeholder="sk-..."
