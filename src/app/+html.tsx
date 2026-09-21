@@ -36,6 +36,16 @@ export default function Root({ children }: PropsWithChildren) {
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
         <ScrollViewStyleReset />
+        {/* Inter es web-only: iOS y Android ya traen una fuente de UI garantizada
+            (SF, Roboto), pero en web el stack del sistema cae en algo distinto
+            segun el SO. El stack que la consume es --font-display (global.css).
+            display=swap evita texto invisible mientras baja. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap"
+        />
         <script dangerouslySetInnerHTML={{ __html: bootLocaleScript }} />
       </head>
       <body>{children}</body>
