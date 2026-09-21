@@ -1,31 +1,82 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Platform,
   Pressable,
   StyleSheet,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { LanguageSelector } from '@/components/language-selector';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { DEV_API_KEY_LOGIN } from '@/constants/auth';
 import { Spacing } from '@/constants/theme';
 import { useAuth } from '@/lib/auth-context';
 
 const isWeb = Platform.OS === 'web';
 
+function ApiKeyLogin() {
+  const { t } = useTranslation();
+  const { signInWithApiKey } = useAuth();
+  const [apiKey, setApiKey] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const submit = async () => {
+    setSubmitting(true);
+    try {
+      await signInWithApiKey(apiKey);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <View style={styles.devBox}>
+      <ThemedText type="small" style={styles.devLabel}>
+        {t('auth.devApiKeyLabel')}
+      </ThemedText>
+      <TextInput
+        style={styles.input}
+        value={apiKey}
+        onChangeText={setApiKey}
+        placeholder="sk-..."
+        placeholderTextColor="#888"
+        autoCapitalize="none"
+        autoCorrect={false}
+        secureTextEntry
+        editable={!submitting}
+        onSubmitEditing={submit}
+      />
+      <Pressable
+        style={styles.button}
+        disabled={submitting || !apiKey.trim()}
+        onPress={submit}
+      >
+        <ThemedText type="smallBold" style={styles.buttonText}>
+          {submitting ? t('auth.verifying') : t('auth.useApiKey')}
+        </ThemedText>
+      </Pressable>
+    </View>
+  );
+}
+
 export function AuthGate({ children }: { children: React.ReactNode }) {
+  const { t, i18n } = useTranslation();
   const { user, loading, error, requestReady, signIn, renderGoogleButton } =
     useAuth();
   const googleButtonRef = useRef<View>(null);
 
+  // Re-runs on language change so the GIS widget re-renders in the new locale.
   useEffect(() => {
     if (!isWeb || user || loading || !requestReady) {
       return;
     }
     renderGoogleButton(googleButtonRef.current as unknown as HTMLElement | null);
-  }, [user, loading, requestReady, renderGoogleButton]);
+  }, [user, loading, requestReady, renderGoogleButton, i18n.language]);
 
   if (loading) {
     return (
@@ -41,9 +92,12 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemedView style={styles.centered}>
+      <SafeAreaView style={styles.languageCorner}>
+        <LanguageSelector />
+      </SafeAreaView>
       <SafeAreaView style={styles.content}>
         <ThemedText type="title">mostro</ThemedText>
-        <ThemedText type="default">Iniciá sesión para continuar</ThemedText>
+        <ThemedText type="default">{t('auth.signInToContinue')}</ThemedText>
 
         {isWeb ? (
           <View ref={googleButtonRef} style={styles.googleButtonContainer} />
@@ -54,10 +108,12 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
             onPress={signIn}
           >
             <ThemedText type="smallBold" style={styles.buttonText}>
-              Continuar con Google
+              {t('auth.continueWithGoogle')}
             </ThemedText>
           </Pressable>
         )}
+
+        {DEV_API_KEY_LOGIN && <ApiKeyLogin />}
 
         {error && (
           <ThemedText type="small" style={styles.error}>
@@ -80,6 +136,11 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     paddingHorizontal: Spacing.four,
   },
+  languageCorner: {
+    position: 'absolute',
+    top: Spacing.three,
+    right: Spacing.three,
+  },
   googleButtonContainer: {
     marginTop: Spacing.three,
     minHeight: 44,
@@ -99,5 +160,26 @@ const styles = StyleSheet.create({
   error: {
     color: '#e5484d',
     textAlign: 'center',
+  },
+  devBox: {
+    marginTop: Spacing.four,
+    width: 280,
+    gap: Spacing.two,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#8888',
+    paddingTop: Spacing.three,
+  },
+  devLabel: {
+    textAlign: 'center',
+    opacity: 0.7,
+  },
+  input: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#8888',
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    color: '#888',
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
 });
