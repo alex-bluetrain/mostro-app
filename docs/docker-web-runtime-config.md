@@ -1,47 +1,47 @@
-# Dockerizar la web con config en runtime (no rebuildear por entorno)
+# Dockerize the web with runtime config (no rebuild per environment)
 
-> Estado: **plan / pendiente**. Nada implementado todavía.
+> Status: **plan / pending**. Nothing implemented yet.
 
-## Objetivo
+## Goal
 
-Servir la build web de mostro-expo desde un contenedor Docker y poder cambiar
-`MOSTRO_URL` y `GOOGLE_CLIENT_ID` **por entorno (dev / staging / prod) sin
-rebuildear la imagen**. Una sola imagen, distinta config vía env vars del
-contenedor en runtime.
+Serve the mostro-expo web build from a Docker container and be able to change
+`MOSTRO_URL` and `GOOGLE_CLIENT_ID` **per environment (dev / staging / prod)
+without rebuilding the image**. One image, different config via the container's
+runtime env vars.
 
-## Por qué no alcanza con `EXPO_PUBLIC_*`
+## Why `EXPO_PUBLIC_*` is not enough
 
-Las vars `EXPO_PUBLIC_*` se inyectan en **build time** por reemplazo textual:
-Metro busca el literal `process.env.EXPO_PUBLIC_MOSTRO_URL` en el código y lo
-reemplaza por el string durante `npx expo export`. En runtime ese `process.env`
-ya no existe — el valor queda "quemado" en el bundle JS.
+`EXPO_PUBLIC_*` vars are injected at **build time** via textual replacement:
+Metro looks for the literal `process.env.EXPO_PUBLIC_MOSTRO_URL` in the code and
+replaces it with the string during `npx expo export`. At runtime that
+`process.env` no longer exists — the value is "baked" into the JS bundle.
 
-Confirmado en la doc de Expo v57:
-- Las `EXPO_PUBLIC_*` del código client-side se inlinean al correr `expo export`.
-- Las variables se inlinean y **no se pueden usar dinámicamente**
-  (`process.env["X"]` no funciona, solo el acceso literal con punto).
+Confirmed in the Expo v57 docs:
+- `EXPO_PUBLIC_*` in client-side code is inlined when running `expo export`.
+- The variables are inlined and **cannot be used dynamically**
+  (`process.env["X"]` does not work, only literal dot access).
 
-Conclusión: **Expo no tiene mecanismo de env en runtime para web estático.**
-Hay que resolverlo por fuera de Expo con el patrón `config.js`.
+Conclusion: **Expo has no runtime env mechanism for static web.**
+It has to be solved outside of Expo with the `config.js` pattern.
 
-Nota: `MOSTRO_URL` y `GOOGLE_CLIENT_ID` son **públicos por diseño** (el client ID
-va en el `aud` del id_token, la URL se ve en cada request). No son secretos.
-El valor de esto NO es seguridad — es flexibilidad de deploy (misma imagen,
-distinta config por entorno).
+Note: `MOSTRO_URL` and `GOOGLE_CLIENT_ID` are **public by design** (the client ID
+goes in the id_token's `aud`, the URL is visible on every request). They are not
+secrets. The point here is NOT security — it's deploy flexibility (same image,
+different config per environment).
 
-## Alcance
+## Scope
 
-- **Solo web** (que es lo que se dockeriza). mostro-expo es `web.output: "static"`
-  y **no tiene API routes** (`+api.ts`), así que el output es HTML/JS/assets
-  estáticos — se sirve con nginx, sin runtime Node ni `@expo/server`.
-- En **native (Android APK)** las vars quedan quemadas en el build sí o sí. Ahí
-  no hay runtime config posible, pero tampoco se dockeriza, así que no aplica.
-  Native sigue usando `EXPO_PUBLIC_*` build-time como hasta ahora.
+- **Web only** (which is what gets dockerized). mostro-expo is
+  `web.output: "static"` and **has no API routes** (`+api.ts`), so the output is
+  static HTML/JS/assets — served with nginx, no Node runtime or `@expo/server`.
+- On **native (Android APK)** the vars are baked into the build no matter what.
+  There is no runtime config possible there, but it isn't dockerized either, so
+  it doesn't apply. Native keeps using build-time `EXPO_PUBLIC_*` as before.
 
-## Patrón: `config.js` inyectado en runtime
+## Pattern: `config.js` injected at runtime
 
-1. **`public/config.js`** (placeholder para dev)
-   Expo copia todo lo de `public/` a `dist/` durante el export. Contenido:
+1. **`public/config.js`** (placeholder for dev)
+   Expo copies everything in `public/` to `dist/` during the export. Contents:
    ```js
    window.__MOSTRO_CONFIG__ = {
      MOSTRO_URL: "https://powerful-urgently-halibut.ngrok-free.app",
@@ -49,12 +49,12 @@ distinta config por entorno).
    };
    ```
 
-2. **Inyectar `<script src="/config.js">` en el `<head>`**
-   En `output: "static"` Expo genera el HTML; no hay `index.html` propio.
-   Se agrega el `<script>` en `src/app/+html.tsx` (ya existe — ahí está el
-   script de GIS). Tiene que cargar **antes** del bundle.
+2. **Inject `<script src="/config.js">` in the `<head>`**
+   With `output: "static"` Expo generates the HTML; there is no custom
+   `index.html`. Add the `<script>` in `src/app/+html.tsx` (it already exists —
+   that's where the GIS script lives). It must load **before** the bundle.
 
-3. **`src/constants/auth.ts` — leer de runtime en web, build-time en native**
+3. **`src/constants/auth.ts` — read from runtime on web, build-time on native**
    ```ts
    import { Platform } from "react-native";
 
@@ -66,9 +66,9 @@ distinta config por entorno).
    export const GOOGLE_CLIENT_ID =
      runtime?.GOOGLE_CLIENT_ID ?? process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID!;
    ```
-   - Web: usa `window.__MOSTRO_CONFIG__` (runtime).
-   - Native / dev sin config.js: cae a `EXPO_PUBLIC_*` (build-time). Compatible
-     con el flujo actual.
+   - Web: uses `window.__MOSTRO_CONFIG__` (runtime).
+   - Native / dev without config.js: falls back to `EXPO_PUBLIC_*` (build-time).
+     Compatible with the current flow.
 
 4. **Dockerfile (multi-stage: build + nginx)**
    ```dockerfile
@@ -77,7 +77,7 @@ distinta config por entorno).
    COPY package*.json ./
    RUN npm ci
    COPY . .
-   RUN npx expo export -p web        # genera dist/
+   RUN npx expo export -p web        # generates dist/
 
    FROM nginx:alpine
    COPY --from=build /app/dist /usr/share/nginx/html
@@ -88,7 +88,7 @@ distinta config por entorno).
    ENTRYPOINT ["/entrypoint.sh"]
    ```
 
-5. **`docker/entrypoint.sh` — genera config.js desde las env vars del contenedor**
+5. **`docker/entrypoint.sh` — generates config.js from the container env vars**
    ```sh
    #!/bin/sh
    set -e
@@ -100,10 +100,10 @@ distinta config por entorno).
    EOF
    exec nginx -g "daemon off;"
    ```
-   Sobreescribe el `config.js` del bundle con los valores del entorno en cada
-   arranque. Misma imagen, distinta config por entorno.
+   Overwrites the bundle's `config.js` with the environment values on each
+   startup. Same image, different config per environment.
 
-6. **`docker/nginx.conf` — SPA fallback para rutas de expo-router**
+6. **`docker/nginx.conf` — SPA fallback for expo-router routes**
    ```nginx
    server {
      listen 80;
@@ -114,7 +114,7 @@ distinta config por entorno).
    }
    ```
 
-7. **docker-compose (ejemplo de uso)**
+7. **docker-compose (usage example)**
    ```yaml
    services:
      mostro-expo-web:
@@ -126,20 +126,20 @@ distinta config por entorno).
          GOOGLE_CLIENT_ID: 192249434965-...4vmnp6.apps.googleusercontent.com
    ```
 
-## Checklist de implementación (para otro momento)
+## Implementation checklist (for later)
 
-- [ ] Crear `public/config.js` (placeholder dev)
-- [ ] Inyectar `<script src="/config.js">` en `src/app/+html.tsx`
-- [ ] Actualizar `src/constants/auth.ts` (runtime web + fallback native)
-- [ ] Crear `Dockerfile`, `docker/entrypoint.sh`, `docker/nginx.conf`
-- [ ] Verificar `npx expo export -p web` genera `dist/` OK
-- [ ] Probar container con distintas env vars → confirmar que `config.js` cambia
-- [ ] Agregar cada origin/redirect nuevo al Web client en Google Cloud
-- [ ] Verificar que `.gitignore` no incluya el `public/config.js` placeholder
-      (o decidir si el placeholder de dev se commitea)
+- [ ] Create `public/config.js` (dev placeholder)
+- [ ] Inject `<script src="/config.js">` in `src/app/+html.tsx`
+- [ ] Update `src/constants/auth.ts` (runtime web + native fallback)
+- [ ] Create `Dockerfile`, `docker/entrypoint.sh`, `docker/nginx.conf`
+- [ ] Verify `npx expo export -p web` generates `dist/` OK
+- [ ] Test the container with different env vars → confirm `config.js` changes
+- [ ] Add each new origin/redirect to the Web client in Google Cloud
+- [ ] Verify `.gitignore` does not include the `public/config.js` placeholder
+      (or decide whether the dev placeholder should be committed)
 
-## Verificar antes de escribir código
+## Verify before writing code
 
-Leer la doc versionada de Expo v57 (https://docs.expo.dev/versions/v57.0.0/),
-según indica AGENTS.md, para confirmar comportamiento de `public/`, `+html.tsx`
-y `expo export -p web` en esta versión.
+Read the versioned Expo v57 docs (https://docs.expo.dev/versions/v57.0.0/), as
+AGENTS.md instructs, to confirm the behavior of `public/`, `+html.tsx` and
+`expo export -p web` in this version.

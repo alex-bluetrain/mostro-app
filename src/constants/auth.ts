@@ -1,13 +1,14 @@
-export const GOOGLE_CLIENT_ID =
-  process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID!;
+import { getConfig } from '@/constants/runtime-config';
 
-export const MOSTRO_URL = process.env.EXPO_PUBLIC_MOSTRO_URL!;
+export const GOOGLE_CLIENT_ID = getConfig('GOOGLE_CLIENT_ID');
+
+export const MOSTRO_URL = getConfig('MOSTRO_URL');
 
 export const ID_TOKEN_STORAGE_KEY = 'mostro.id_token';
 
-// Muestra el login mock con API key (SimpleAuth) en la pantalla de auth.
-// __DEV__ solo es true bajo el dev server de Metro; el bundle estático de
-// `expo export` corre en modo prod, así que gateamos con una env explícita
-// para poder habilitarlo también en el build Docker de dev.
+// Shows the mock API-key login (SimpleAuth) on the auth screen.
+// __DEV__ is only true under the Metro dev server; the static `expo export`
+// bundle runs in prod mode, so we gate on an explicit env var to also enable
+// it in the dev Docker build.
 export const DEV_API_KEY_LOGIN =
   process.env.EXPO_PUBLIC_DEV_LOGIN === '1' || __DEV__;
