@@ -23,7 +23,7 @@ type KeyPressEvent = NativeSyntheticEvent<TextInputKeyPressEventData> & {
 };
 
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
@@ -63,7 +63,12 @@ export function Composer({ disabled, onSend }: Props) {
       <TextInput
         style={[
           styles.input,
-          { color: theme.text, backgroundColor: theme.backgroundElement },
+          {
+            color: theme.text,
+            backgroundColor: theme.backgroundElement,
+            borderRadius: Radius.capsule,
+            borderCurve: 'continuous',
+          },
         ]}
         value={value}
         onChangeText={setValue}
@@ -74,10 +79,18 @@ export function Composer({ disabled, onSend }: Props) {
         multiline
       />
       <Pressable
-        style={[styles.send, { opacity: canSend ? 1 : 0.4 }]}
+        style={[
+          styles.send,
+          {
+            opacity: canSend ? 1 : 0.4,
+            backgroundColor: theme.tint,
+            borderRadius: Radius.capsule,
+            borderCurve: 'continuous',
+          },
+        ]}
         onPress={submit}
         disabled={!canSend}>
-        <ThemedText type="smallBold" style={styles.sendLabel}>
+        <ThemedText type="smallBold" style={{ color: theme.onTint }}>
           {t('chat.send')}
         </ThemedText>
       </Pressable>
@@ -98,7 +111,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 44,
     maxHeight: 120,
-    borderRadius: 22,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     fontSize: 16,
@@ -106,12 +118,7 @@ const styles = StyleSheet.create({
   send: {
     height: 44,
     paddingHorizontal: Spacing.three,
-    borderRadius: 22,
-    backgroundColor: '#3c87f7',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  sendLabel: {
-    color: '#ffffff',
   },
 });
