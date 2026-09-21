@@ -1,9 +1,33 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
+// Resolves the app language before paint using the same priority chain as
+// src/i18n: stored selection → browser locale → 'en'. Sets <html lang> and
+// loads the Google Sign-In script with the matching locale (?hl=), since GIS
+// resolves its widget locale at script load time.
+// The 'mostro_language' key must match src/i18n/language-storage.web.ts.
+const bootLocaleScript = `
+(function () {
+  var supported = ['en', 'es'];
+  var lang = null;
+  try { lang = localStorage.getItem('mostro_language'); } catch (e) {}
+  if (supported.indexOf(lang) === -1) {
+    lang = (navigator.language || 'en').split('-')[0];
+  }
+  if (supported.indexOf(lang) === -1) {
+    lang = 'en';
+  }
+  document.documentElement.lang = lang;
+  var s = document.createElement('script');
+  s.src = 'https://accounts.google.com/gsi/client?hl=' + lang;
+  s.async = true;
+  document.head.appendChild(s);
+})();
+`;
+
 export default function Root({ children }: PropsWithChildren) {
   return (
-    <html lang="es">
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -12,7 +36,7 @@ export default function Root({ children }: PropsWithChildren) {
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
         <ScrollViewStyleReset />
-        <script src="https://accounts.google.com/gsi/client" async />
+        <script dangerouslySetInnerHTML={{ __html: bootLocaleScript }} />
       </head>
       <body>{children}</body>
     </html>
