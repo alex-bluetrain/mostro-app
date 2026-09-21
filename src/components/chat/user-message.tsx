@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 
 type Props = {
   content: string;
@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
     maxWidth: '85%',
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
-    borderRadius: 16,
+    borderRadius: Radius.card,
+    borderCurve: 'continuous',
   },
 });

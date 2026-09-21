@@ -14,13 +14,15 @@ import { LanguageSelector } from '@/components/language-selector';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { DEV_API_KEY_LOGIN } from '@/constants/auth';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth-context';
 
 const isWeb = Platform.OS === 'web';
 
 function ApiKeyLogin() {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { signInWithApiKey } = useAuth();
   const [apiKey, setApiKey] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -35,16 +37,16 @@ function ApiKeyLogin() {
   };
 
   return (
-    <View style={styles.devBox}>
+    <View style={[styles.devBox, { borderTopColor: theme.border }]}>
       <ThemedText type="small" style={styles.devLabel}>
         {t('auth.devApiKeyLabel')}
       </ThemedText>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { borderColor: theme.border, color: theme.placeholder }]}
         value={apiKey}
         onChangeText={setApiKey}
         placeholder="sk-..."
-        placeholderTextColor="#888"
+        placeholderTextColor={theme.placeholder}
         autoCapitalize="none"
         autoCorrect={false}
         secureTextEntry
@@ -52,11 +54,11 @@ function ApiKeyLogin() {
         onSubmitEditing={submit}
       />
       <Pressable
-        style={styles.button}
+        style={[styles.button, { backgroundColor: theme.tint }]}
         disabled={submitting || !apiKey.trim()}
         onPress={submit}
       >
-        <ThemedText type="smallBold" style={styles.buttonText}>
+        <ThemedText type="smallBold" style={{ color: theme.onTint }}>
           {submitting ? t('auth.verifying') : t('auth.useApiKey')}
         </ThemedText>
       </Pressable>
@@ -66,6 +68,7 @@ function ApiKeyLogin() {
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const { t, i18n } = useTranslation();
+  const theme = useTheme();
   const { user, loading, error, requestReady, signIn, renderGoogleButton } =
     useAuth();
   const googleButtonRef = useRef<View>(null);
@@ -103,11 +106,11 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
           <View ref={googleButtonRef} style={styles.googleButtonContainer} />
         ) : (
           <Pressable
-            style={styles.button}
+            style={[styles.button, { backgroundColor: theme.tint }]}
             disabled={!requestReady}
             onPress={signIn}
           >
-            <ThemedText type="smallBold" style={styles.buttonText}>
+            <ThemedText type="smallBold" style={{ color: theme.onTint }}>
               {t('auth.continueWithGoogle')}
             </ThemedText>
           </Pressable>
@@ -116,7 +119,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         {DEV_API_KEY_LOGIN && <ApiKeyLogin />}
 
         {error && (
-          <ThemedText type="small" style={styles.error}>
+          <ThemedText type="small" style={[styles.error, { color: theme.error }]}>
             {error}
           </ThemedText>
         )}
@@ -148,17 +151,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    backgroundColor: '#3c87f7',
     paddingVertical: Spacing.three,
     paddingHorizontal: Spacing.four,
-    borderRadius: Spacing.three,
+    borderRadius: Radius.card,
+    borderCurve: 'continuous',
     marginTop: Spacing.three,
   },
-  buttonText: {
-    color: '#ffffff',
-  },
   error: {
-    color: '#e5484d',
     textAlign: 'center',
   },
   devBox: {
@@ -166,7 +165,6 @@ const styles = StyleSheet.create({
     width: 280,
     gap: Spacing.two,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#8888',
     paddingTop: Spacing.three,
   },
   devLabel: {
@@ -175,11 +173,9 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#8888',
     borderRadius: Spacing.two,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    color: '#888',
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
 });

@@ -9,10 +9,8 @@ import { UserMessage } from '@/components/chat/user-message';
 import { LanguageSelector } from '@/components/language-selector';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useMostroChat, type ChatMessage } from '@/lib/use-mostro-chat';
-
-const MAX_CONTENT_WIDTH = 720;
 
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();
@@ -72,7 +70,7 @@ const styles = StyleSheet.create({
   centered: {
     flex: 1,
     width: '100%',
-    maxWidth: MAX_CONTENT_WIDTH,
+    maxWidth: MaxContentWidth,
     alignSelf: 'center',
   },
   header: {

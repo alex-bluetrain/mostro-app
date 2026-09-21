@@ -41,7 +41,7 @@ export function AssistantMessage({ message, onFollowUp }: Props) {
       ) : null}
 
       {message.error ? (
-        <ThemedText type="small" style={styles.error}>
+        <ThemedText type="small" style={[styles.error, { color: theme.error }]}>
           {message.error}
         </ThemedText>
       ) : null}
@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
   },
   error: {
-    color: '#e5484d',
     marginTop: Spacing.one,
   },
 });
