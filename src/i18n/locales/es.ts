@@ -7,6 +7,7 @@ const es: typeof en = {
     emptyState: 'Preguntale a mostro…',
     sessionExpired: 'Tu sesión expiró. Iniciá sesión de nuevo.',
     genericError: 'Algo salió mal.',
+    renderFailed: 'No se pudo mostrar esta respuesta.',
     openSettings: 'Abrir ajustes',
     openMenu: 'Abrir menú',
     closeMenu: 'Cerrar menú',

@@ -1,8 +1,11 @@
 import * as Linking from 'expo-linking';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { Renderer, type ActionEvent } from '@openuidev/react-lang';
 
+import { MessageBoundary } from '@/components/chat/message-boundary';
+import '@/components/openui/dom-shim';
 import { nativeChatLibrary } from '@/components/openui/native-library';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -16,6 +19,7 @@ type Props = {
 
 export function AssistantMessage({ message, onFollowUp }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const handleAction = (event: ActionEvent) => {
     if (event.type === 'open_url') {
@@ -30,12 +34,14 @@ export function AssistantMessage({ message, onFollowUp }: Props) {
   return (
     <View style={styles.container}>
       {message.content ? (
-        <Renderer
-          response={message.content}
-          library={nativeChatLibrary}
-          isStreaming={message.streaming}
-          onAction={handleAction}
-        />
+        <MessageBoundary fallback={t('chat.renderFailed')}>
+          <Renderer
+            response={message.content}
+            library={nativeChatLibrary}
+            isStreaming={message.streaming}
+            onAction={handleAction}
+          />
+        </MessageBoundary>
       ) : message.streaming && !message.error ? (
         <ActivityIndicator color={theme.textSecondary} />
       ) : null}
