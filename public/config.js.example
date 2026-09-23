@@ -4,5 +4,5 @@
 // rebuild. These values are public by design (visible in the client bundle).
 window.__MOSTRO_CONFIG__ = {
   GOOGLE_CLIENT_ID: 'your-client-id.apps.googleusercontent.com',
-  MOSTRO_URL: 'https://your-mostro-host',
+  MOSTRO_SERVER_URL: 'https://your-mostro-host',
 };
