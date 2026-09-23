@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/alex-bluetrain/mostro-app/compare/mostro-app-v1.1.0...mostro-app-v1.2.0) (2026-09-23)
+
+
+### Features
+
+* Render chat with official OpenUI web library via Expo DOM component ([#3](https://github.com/alex-bluetrain/mostro-app/issues/3)) ([e519644](https://github.com/alex-bluetrain/mostro-app/commit/e519644b50600f234f7f75d5f181388c276c6309))
+
+
+### Bug Fixes
+
+* **native:** render assistant messages instead of blanking the app ([0f16554](https://github.com/alex-bluetrain/mostro-app/commit/0f1655411b8a2ce9a468b1c983fedbbb06b376a7))
+
 ## [1.1.0](https://github.com/alex-bluetrain/mostro-app/compare/mostro-app-v1.0.0...mostro-app-v1.1.0) (2026-09-21)
 
 
