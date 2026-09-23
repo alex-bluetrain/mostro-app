@@ -1,14 +1,12 @@
 import * as Linking from 'expo-linking';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
-
-import { Renderer, type ActionEvent } from '@openuidev/react-lang';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 
 import { MessageBoundary } from '@/components/chat/message-boundary';
-import '@/components/openui/dom-shim';
-import { nativeChatLibrary } from '@/components/openui/native-library';
+import OpenUIMessage from '@/components/openui/openui-message';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import type { ChatMessage } from '@/lib/use-mostro-chat';
 
@@ -17,11 +15,18 @@ type Props = {
   onFollowUp: (text: string) => void;
 };
 
+type MessageActionEvent = {
+  type: string;
+  params?: Record<string, unknown>;
+  humanFriendlyMessage?: string;
+};
+
 export function AssistantMessage({ message, onFollowUp }: Props) {
   const theme = useTheme();
+  const scheme = useColorScheme();
   const { t } = useTranslation();
 
-  const handleAction = (event: ActionEvent) => {
+  const handleAction = async (event: MessageActionEvent) => {
     if (event.type === 'open_url') {
       const url = event.params?.url;
       if (typeof url === 'string') Linking.openURL(url).catch(() => {});
@@ -35,11 +40,16 @@ export function AssistantMessage({ message, onFollowUp }: Props) {
     <View style={styles.container}>
       {message.content ? (
         <MessageBoundary fallback={t('chat.renderFailed')}>
-          <Renderer
-            response={message.content}
-            library={nativeChatLibrary}
+          <OpenUIMessage
+            content={message.content}
             isStreaming={message.streaming}
+            themeMode={scheme === 'dark' ? 'dark' : 'light'}
             onAction={handleAction}
+            dom={
+              Platform.OS === 'web'
+                ? undefined
+                : { matchContents: true, scrollEnabled: false }
+            }
           />
         </MessageBoundary>
       ) : message.streaming && !message.error ? (
