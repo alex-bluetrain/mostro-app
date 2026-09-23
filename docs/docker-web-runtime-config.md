@@ -4,15 +4,15 @@
 
 ## Goal
 
-Serve the mostro-expo web build from a Docker container and be able to change
-`MOSTRO_URL` and `GOOGLE_CLIENT_ID` **per environment (dev / staging / prod)
+Serve the mostro-app web build from a Docker container and be able to change
+`MOSTRO_SERVER_URL` and `GOOGLE_CLIENT_ID` **per environment (dev / staging / prod)
 without rebuilding the image**. One image, different config via the container's
 runtime env vars.
 
 ## Why `EXPO_PUBLIC_*` is not enough
 
 `EXPO_PUBLIC_*` vars are injected at **build time** via textual replacement:
-Metro looks for the literal `process.env.EXPO_PUBLIC_MOSTRO_URL` in the code and
+Metro looks for the literal `process.env.EXPO_PUBLIC_MOSTRO_SERVER_URL` in the code and
 replaces it with the string during `npx expo export`. At runtime that
 `process.env` no longer exists — the value is "baked" into the JS bundle.
 
@@ -24,14 +24,14 @@ Confirmed in the Expo v57 docs:
 Conclusion: **Expo has no runtime env mechanism for static web.**
 It has to be solved outside of Expo with the `config.js` pattern.
 
-Note: `MOSTRO_URL` and `GOOGLE_CLIENT_ID` are **public by design** (the client ID
+Note: `MOSTRO_SERVER_URL` and `GOOGLE_CLIENT_ID` are **public by design** (the client ID
 goes in the id_token's `aud`, the URL is visible on every request). They are not
 secrets. The point here is NOT security — it's deploy flexibility (same image,
 different config per environment).
 
 ## Scope
 
-- **Web only** (which is what gets dockerized). mostro-expo is
+- **Web only** (which is what gets dockerized). mostro-app is
   `web.output: "static"` and **has no API routes** (`+api.ts`), so the output is
   static HTML/JS/assets — served with nginx, no Node runtime or `@expo/server`.
 - On **native (Android APK)** the vars are baked into the build no matter what.
@@ -44,7 +44,7 @@ different config per environment).
    Expo copies everything in `public/` to `dist/` during the export. Contents:
    ```js
    window.__MOSTRO_CONFIG__ = {
-     MOSTRO_URL: "https://powerful-urgently-halibut.ngrok-free.app",
+     MOSTRO_SERVER_URL: "https://powerful-urgently-halibut.ngrok-free.app",
      GOOGLE_CLIENT_ID: "192249434965-...4vmnp6.apps.googleusercontent.com",
    };
    ```
@@ -61,8 +61,8 @@ different config per environment).
    const runtime =
      Platform.OS === "web" ? (globalThis as any).__MOSTRO_CONFIG__ : undefined;
 
-   export const MOSTRO_URL =
-     runtime?.MOSTRO_URL ?? process.env.EXPO_PUBLIC_MOSTRO_URL!;
+   export const MOSTRO_SERVER_URL =
+     runtime?.MOSTRO_SERVER_URL ?? process.env.EXPO_PUBLIC_MOSTRO_SERVER_URL!;
    export const GOOGLE_CLIENT_ID =
      runtime?.GOOGLE_CLIENT_ID ?? process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID!;
    ```
@@ -94,7 +94,7 @@ different config per environment).
    set -e
    cat > /usr/share/nginx/html/config.js <<EOF
    window.__MOSTRO_CONFIG__ = {
-     MOSTRO_URL: "${MOSTRO_URL}",
+     MOSTRO_SERVER_URL: "${MOSTRO_SERVER_URL}",
      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}",
    };
    EOF
@@ -117,12 +117,12 @@ different config per environment).
 7. **docker-compose (usage example)**
    ```yaml
    services:
-     mostro-expo-web:
-       build: ./mostro-expo
+     mostro-app-web:
+       build: ./mostro-app
        ports:
          - "3001:80"
        environment:
-         MOSTRO_URL: https://powerful-urgently-halibut.ngrok-free.app
+         MOSTRO_SERVER_URL: https://powerful-urgently-halibut.ngrok-free.app
          GOOGLE_CLIENT_ID: 192249434965-...4vmnp6.apps.googleusercontent.com
    ```
 
