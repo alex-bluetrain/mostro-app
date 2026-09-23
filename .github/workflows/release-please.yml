@@ -12,8 +12,19 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  # Deploy the web app right after a release is published. Chained here because
+  # GITHUB_TOKEN-created releases cannot trigger the deploy workflow on their own.
+  deploy-web:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/deploy-web.yml
+    secrets: inherit
