@@ -6,12 +6,12 @@
 
 export type RuntimeConfig = {
   GOOGLE_CLIENT_ID?: string;
-  MOSTRO_URL?: string;
+  MOSTRO_SERVER_URL?: string;
 };
 
 const env: Record<keyof RuntimeConfig, string | undefined> = {
   GOOGLE_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-  MOSTRO_URL: process.env.EXPO_PUBLIC_MOSTRO_URL,
+  MOSTRO_SERVER_URL: process.env.EXPO_PUBLIC_MOSTRO_SERVER_URL,
 };
 
 export function getConfig(key: keyof RuntimeConfig): string {

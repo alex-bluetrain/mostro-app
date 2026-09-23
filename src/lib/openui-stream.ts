@@ -3,14 +3,14 @@ import { fetch } from 'expo/fetch';
 import { agUIAdapter, type AGUIEvent, type Message } from '@openuidev/react-headless';
 import { EventType } from '@openuidev/react-headless';
 
-import { MOSTRO_URL } from '@/constants/auth';
+import { MOSTRO_SERVER_URL } from '@/constants/auth';
 import { AuthError } from '@/lib/mostro-client';
 
 /**
  * Streams a mostro-supervisor run over the OpenUI AG-UI route.
  *
  * Contract (mostro/src/mastra/routes/ag-ui.route.ts):
- * - POST ${MOSTRO_URL}/agents/mostro-supervisor/openui
+ * - POST ${MOSTRO_SERVER_URL}/agents/mostro-supervisor/openui
  * - Auth: Bearer <Google id_token>; body is only { messages, state? }.
  *   threadId/runId are derived server-side from the bearer token.
  * - Response: text/event-stream of `data: {AG-UI event JSON}\n\n`,
@@ -26,7 +26,7 @@ export async function* streamAgentRun(
   messages: Message[],
   signal?: AbortSignal,
 ): AsyncGenerator<AGUIEvent> {
-  const response = await fetch(`${MOSTRO_URL}/agents/mostro-supervisor/openui`, {
+  const response = await fetch(`${MOSTRO_SERVER_URL}/agents/mostro-supervisor/openui`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${idToken}`,

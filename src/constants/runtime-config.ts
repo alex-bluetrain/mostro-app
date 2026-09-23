@@ -12,7 +12,7 @@
 
 export type RuntimeConfig = {
   GOOGLE_CLIENT_ID?: string;
-  MOSTRO_URL?: string;
+  MOSTRO_SERVER_URL?: string;
 };
 
 declare global {

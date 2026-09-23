@@ -1,4 +1,4 @@
-import { MOSTRO_URL } from '@/constants/auth';
+import { MOSTRO_SERVER_URL } from '@/constants/auth';
 import { logger } from '@/lib/logger';
 
 export type MostroUser = {
@@ -7,7 +7,7 @@ export type MostroUser = {
 };
 
 export async function fetchMe(idToken: string): Promise<MostroUser> {
-  const endpoint = `${MOSTRO_URL}/users/me`;
+  const endpoint = `${MOSTRO_SERVER_URL}/users/me`;
 
   let res: Response;
   try {

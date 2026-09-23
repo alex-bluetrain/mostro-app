@@ -2,7 +2,7 @@ import { getConfig } from '@/constants/runtime-config';
 
 export const GOOGLE_CLIENT_ID = getConfig('GOOGLE_CLIENT_ID');
 
-export const MOSTRO_URL = getConfig('MOSTRO_URL');
+export const MOSTRO_SERVER_URL = getConfig('MOSTRO_SERVER_URL');
 
 export const ID_TOKEN_STORAGE_KEY = 'mostro.id_token';
 

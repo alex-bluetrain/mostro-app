@@ -1,17 +1,17 @@
 {
   "expo": {
-    "name": "mostro-expo",
-    "slug": "mostro-expo",
+    "name": "mostro-app",
+    "slug": "mostro-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mostroexpo",
+    "scheme": "mostro-app",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
     },
     "android": {
-      "package": "com.alex.mostro",
+      "package": "com.alex.mostro.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
