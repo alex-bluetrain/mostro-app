@@ -51,3 +51,6 @@ skills-lock.json
 
 # Runtime web config (real values, not committed)
 public/config.js
+
+# Personal session retrospective (private, not for the public repo)
+REFACTOR-RENAME.md
