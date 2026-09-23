@@ -24,52 +24,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # All secrets live in Infisical (project mostro, environment prod), not in
-      # GitHub secrets. Only the machine-identity bootstrap creds sit in GitHub.
-      - name: Install Infisical CLI
-        run: |
-          curl -1sLf 'https://artifacts-cli.infisical.com/setup.deb.sh' | sudo -E bash
-          sudo apt-get install -y infisical
-
-      # Universal Auth machine identity → short-lived token → pull the four values:
-      # two Cloudflare creds (for wrangler) and two runtime-config values (written
-      # to public/config.js so the web build serves them at runtime).
+      # Pull secrets from Infisical (project mostro, env prod, path /mostro-app)
+      # via the official action. It authenticates as the Universal Auth machine
+      # identity and injects each secret in that folder as an env var (masked in
+      # logs) for the following steps:
+      #   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID  -> wrangler deploy
+      #   EXPO_PUBLIC_GOOGLE_CLIENT_ID, EXPO_PUBLIC_MOSTRO_SERVER_URL -> config.js
       - name: Fetch secrets from Infisical
-        env:
-          INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
-          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
-          INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+        uses: Infisical/secrets-action@v1.0.9
+        with:
+          method: universal
+          client-id: ${{ secrets.INFISICAL_CLIENT_ID }}
+          client-secret: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+          project-slug: mostro-k-lpx
+          env-slug: prod
+          secret-path: /mostro-app
+
+      # Runtime config consumed by the web build (window.__MOSTRO_CONFIG__).
+      # Written before build so it is copied into dist/. These values are public
+      # by design (visible in the client).
+      - name: Write runtime config
         run: |
-          set -euo pipefail
-          TOKEN=$(infisical login --method=universal-auth \
-            --client-id="$INFISICAL_CLIENT_ID" \
-            --client-secret="$INFISICAL_CLIENT_SECRET" \
-            --plain --silent)
-          get() {
-            infisical secrets get "$1" \
-              --token="$TOKEN" \
-              --projectId="$INFISICAL_PROJECT_ID" \
-              --env=prod --plain
-          }
-          CF_TOKEN=$(get CLOUDFLARE_API_TOKEN)
-          CF_ACCOUNT=$(get CLOUDFLARE_ACCOUNT_ID)
-          GOOGLE_CLIENT_ID=$(get GOOGLE_CLIENT_ID)
-          MOSTRO_URL=$(get MOSTRO_URL)
-          # Mask secrets in logs. add-mask is a workflow command that must go to
-          # stdout, NOT to $GITHUB_ENV (writing it there is an invalid env format).
-          echo "::add-mask::$CF_TOKEN"
-          echo "::add-mask::$CF_ACCOUNT"
-          {
-            echo "CLOUDFLARE_API_TOKEN=$CF_TOKEN"
-            echo "CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT"
-          } >> "$GITHUB_ENV"
-          # Runtime config consumed by the web build (window.__MOSTRO_CONFIG__).
-          # Written before build so it is copied into dist/. These values are
-          # public by design (visible in the client).
           cat > public/config.js <<EOF
           window.__MOSTRO_CONFIG__ = {
-            GOOGLE_CLIENT_ID: '${GOOGLE_CLIENT_ID}',
-            MOSTRO_URL: '${MOSTRO_URL}',
+            GOOGLE_CLIENT_ID: '${EXPO_PUBLIC_GOOGLE_CLIENT_ID}',
+            MOSTRO_SERVER_URL: '${EXPO_PUBLIC_MOSTRO_SERVER_URL}',
           };
           EOF
 
@@ -81,4 +60,4 @@ jobs:
         with:
           apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=mostro-expo
+          command: pages deploy dist --project-name=mostro-app
