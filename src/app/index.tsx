@@ -1,7 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { ChatProvider, useThread, type Message } from '@openuidev/react-headless';
 
 import { AssistantMessage } from '@/components/chat/assistant-message';
 import { Composer } from '@/components/chat/composer';
@@ -11,23 +13,42 @@ import { SettingsDrawer } from '@/components/settings/settings-drawer';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { useMostroChat, type ChatMessage } from '@/lib/use-mostro-chat';
+import { mostroLLM } from '@/lib/mostro-llm';
 
-export default function ChatScreen() {
+function Chat() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { messages, isRunning, sendMessage } = useMostroChat();
+  const messages = useThread((s) => s.messages);
+  const isRunning = useThread((s) => s.isRunning);
+  const processMessage = useThread((s) => s.processMessage);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Only the final assistant message is still streaming while a run is active.
+  const lastMessageId = messages.length ? messages[messages.length - 1].id : null;
+
+  const send = useCallback(
+    (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || isRunning) return;
+      processMessage({ role: 'user', content: trimmed });
+    },
+    [isRunning, processMessage],
+  );
 
   // Inverted list renders newest at the bottom, so feed it reversed order.
   const data = useMemo(() => [...messages].reverse(), [messages]);
 
-  const renderItem = ({ item }: { item: ChatMessage }) =>
+  const renderItem = ({ item }: { item: Message }) =>
     item.role === 'user' ? (
-      <UserMessage content={item.content} />
-    ) : (
-      <AssistantMessage message={item} onFollowUp={sendMessage} />
-    );
+      <UserMessage content={typeof item.content === 'string' ? item.content : ''} />
+    ) : item.role === 'assistant' ? (
+      <AssistantMessage
+        message={item}
+        allMessages={messages}
+        isStreaming={isRunning && item.id === lastMessageId}
+        onFollowUp={send}
+      />
+    ) : null;
 
   return (
     <ThemedView style={[styles.root, { paddingTop: insets.top }]}>
@@ -54,12 +75,20 @@ export default function ChatScreen() {
             />
           )}
           <View style={{ paddingBottom: insets.bottom }}>
-            <Composer disabled={isRunning} onSend={sendMessage} />
+            <Composer disabled={isRunning} onSend={send} />
           </View>
         </View>
       </KeyboardAvoidingView>
       <SettingsDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
     </ThemedView>
+  );
+}
+
+export default function ChatScreen() {
+  return (
+    <ChatProvider llm={mostroLLM}>
+      <Chat />
+    </ChatProvider>
   );
 }
 
