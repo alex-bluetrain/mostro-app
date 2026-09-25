@@ -10,10 +10,10 @@ import { getIdToken } from '@/lib/token-storage';
  * ChatLLM for the mostro-supervisor OpenUI AG-UI route, consumed by
  * `<ChatProvider llm={mostroLLM}>`.
  *
- * Contract (mostro/src/mastra/routes/ag-ui.route.ts):
+ * Contract (mostro-server/src/mastra/routes/ag-ui.route.ts):
  * - POST ${MOSTRO_SERVER_URL}/agents/mostro-supervisor/openui
- * - Auth: Bearer <Google id_token>; body is only { messages }.
- *   threadId/runId are derived server-side from the bearer token.
+ * - Auth: Bearer <Google id_token>. Body accepts { messages, state? }; we send
+ *   only { messages }. threadId/runId are derived server-side from the token.
  * - Response: text/event-stream of AG-UI events, parsed by `agUIAdapter`.
  *
  * A custom ChatLLM (instead of the library's `fetchLLM`) is required because:
