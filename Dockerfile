@@ -1,16 +1,13 @@
-# Build web estático de mostro-app (web.output: "static") y servir con nginx.
-# Las EXPO_PUBLIC_* se inyectan en build time (quedan en el bundle).
-# Para cambiarlas hay que rebuildear.
+# Static web build of mostro-app (web.output: "static") served by nginx.
+# Server URL and Google client ID are read at runtime from /config.js, which
+# is copied from public/config.js (required; see docs/docker-web-runtime-config.md).
+# Override it without rebuilding by mounting a file over it.
 
 FROM node:22-alpine AS build
 WORKDIR /app
 
-# Vars publicas de la app, inyectadas en el bundle durante expo export.
-ARG EXPO_PUBLIC_MOSTRO_SERVER_URL
-ARG EXPO_PUBLIC_GOOGLE_CLIENT_ID
+# The only build-time var the web bundle reads: "1" enables API-key login.
 ARG EXPO_PUBLIC_DEV_LOGIN
-ENV EXPO_PUBLIC_MOSTRO_SERVER_URL=$EXPO_PUBLIC_MOSTRO_SERVER_URL
-ENV EXPO_PUBLIC_GOOGLE_CLIENT_ID=$EXPO_PUBLIC_GOOGLE_CLIENT_ID
 ENV EXPO_PUBLIC_DEV_LOGIN=$EXPO_PUBLIC_DEV_LOGIN
 
 RUN corepack enable
@@ -22,6 +19,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
 
 COPY . .
+RUN test -f public/config.js || (echo 'public/config.js missing: copy public/config.js.example' >&2; exit 1)
 RUN pnpm expo export -p web
 
 FROM nginx:alpine

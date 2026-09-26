@@ -1,56 +1,61 @@
-# Welcome to your Expo app 👋
+<p align="center">
+  <img src="https://raw.githubusercontent.com/alex-bluetrain/mostro-server/main/docs/mostro-avatar.jpg" width="120" alt="Mostro logo" />
+</p>
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<h1 align="center">mostro-app</h1>
 
-## Get started
+<p align="center">
+  Android and web client for <a href="https://github.com/alex-bluetrain/mostro-server">Mostro</a>, a family care assistant.
+</p>
 
-1. Install dependencies
+<p align="center">
+  <a href="https://github.com/alex-bluetrain/mostro-app/releases"><img src="https://img.shields.io/github/v/release/alex-bluetrain/mostro-app?style=flat-square" alt="Release" /></a>
+  <img src="https://img.shields.io/badge/Expo-57-000020?style=flat-square&logo=expo&logoColor=white" alt="Expo" />
+  <img src="https://img.shields.io/badge/platforms-android%20%7C%20web-blue?style=flat-square" alt="Platforms" />
+</p>
 
-   ```bash
-   npm install
-   ```
+## Description
 
-2. Start the app
+An [Expo](https://expo.dev) app for chatting with the Mostro assistant. Replies render as
+generative UI with [OpenUI](https://github.com/thesysdev/openui).
 
-   ```bash
-   npx expo start
-   ```
+- **Android, iOS and web** from one Expo project: auth, streaming and settings are shared; the chat screen is platform-specific (OpenUI `AgentInterface` on web, a native chat on mobile).
+- **Google Sign-In**: the Google ID token authenticates each request to mostro-server.
+- **Streaming chat**: replies stream in as they are generated, with visible tool calls.
+- **English and Spanish** interface.
 
-In the output, you'll find options to open the app in a
+## Quick start
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Requires Node.js 22, pnpm and a running [mostro-server](https://github.com/alex-bluetrain/mostro-server).
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+```bash
+pnpm install
+cp public/config.js.example public/config.js   # web: server URL + Google client ID
+cp .env.example .env                           # native: same values as EXPO_PUBLIC_*
+pnpm web               # web
+pnpm android           # Android (emulator or device)
+```
 
-### Other setup steps
+The web build (dev and export) reads `public/config.js` at runtime, not `.env`. See [Web runtime config](docs/docker-web-runtime-config.md).
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Scripts
 
-## Known limitations / TODO
+| Command        | Description                          |
+| -------------- | ------------------------------------ |
+| `pnpm start`   | Start the Expo dev server            |
+| `pnpm android` | Build and run on Android             |
+| `pnpm ios`     | Build and run on iOS (macOS + Xcode) |
+| `pnpm web`     | Run in the browser                   |
+| `pnpm lint`    | Lint the project                     |
+| `pnpm build:web` | Export the static web build        |
+| `pnpm deploy:web` | Export and upload to Cloudflare Pages |
 
-Auth (Google Sign-In → Bearer id_token → mostro `/users/me`) works on web and Android, but a
-few things are intentionally deferred:
+## Documentation
 
-- **Web token storage is memory-only.** `src/lib/token-storage.web.ts` keeps the id_token in
-  memory, so a page refresh logs the user out. Phase 2: persist via an httpOnly cookie / SSO flow.
-- **No token refresh.** id_tokens expire (~1h) and there is no silent re-auth yet; the user must
-  sign in again. Phase 2 (SSO/cookie flow) addresses this.
+- [Theming](docs/THEMING.md)
+- [Docker web runtime config](docs/docker-web-runtime-config.md)
+- [Developer guide & known limitations](docs/GUIDE.md)
 
-## Learn more
+## License
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+MIT — see [LICENSE](LICENSE).

@@ -12,10 +12,6 @@ use the i-have-adhd skill on EVERY response.
 
 Read the exact versioned docs at <https://docs.expo.dev/versions/v57.0.0/> before writing any code.
 
-# Expo HAS CHANGED
-
-Read the exact versioned docs at <https://docs.expo.dev/versions/v57.0.0/> before writing any code.
-
 # API routes (mostro backend) — NO /api prefix
 
 Mastra `registerApiRoute()` mounts routes at the ROOT. There is NO `/api` prefix.

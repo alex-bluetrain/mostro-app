@@ -1,5 +1,5 @@
 // Runtime config for the web build. Loaded synchronously before the app bundle
-// (see app/+html.tsx). Copy to config.js and fill real values, or edit the
+// (see src/app/+html.tsx). Copy to config.js and fill real values, or edit the
 // deployed copy on the host (e.g. Cloudflare Pages) to change config without a
 // rebuild. These values are public by design (visible in the client bundle).
 window.__MOSTRO_CONFIG__ = {

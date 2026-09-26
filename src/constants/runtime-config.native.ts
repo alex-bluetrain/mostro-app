@@ -1,4 +1,6 @@
-// Runtime config for NATIVE builds (iOS/Android) and the Metro dev server.
+// Runtime config for NATIVE builds (iOS/Android), in dev and release. Web —
+// including `expo start --web` — resolves runtime-config.ts instead (Metro
+// only picks .native.* for ios/android).
 //
 // Native apps have no /config.js, so config comes from process.env.EXPO_PUBLIC_*
 // inlined at build time — the standard Expo mechanism. The web build uses

@@ -2,7 +2,7 @@
 //
 // `expo export` inlines process.env.EXPO_PUBLIC_* at BUILD time. To deploy one
 // build across environments, the web export loads a static /config.js at boot
-// (see app/+html.tsx) that sets window.__MOSTRO_CONFIG__ synchronously, before
+// (see src/app/+html.tsx) that sets window.__MOSTRO_CONFIG__ synchronously, before
 // the app bundle runs. Editing that file on the host (e.g. Cloudflare Pages)
 // changes config with no rebuild.
 //
