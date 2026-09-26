@@ -34,6 +34,9 @@ jobs:
       # logs) for the following steps:
       #   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID  -> wrangler deploy
       #   EXPO_PUBLIC_GOOGLE_CLIENT_ID, EXPO_PUBLIC_MOSTRO_SERVER_URL -> config.js
+      # The EXPO_PUBLIC_ names are kept on purpose: one name per value across
+      # .env, Infisical and CI. On web they are NOT inlined in the bundle; they
+      # only feed config.js below (see docs/GUIDE.md#configuration).
       - name: Fetch secrets from Infisical
         uses: Infisical/secrets-action@v1.0.9
         with:

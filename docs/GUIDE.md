@@ -23,6 +23,8 @@ Config comes from a different source on each platform. `src/constants/runtime-co
 | Google client ID | `GOOGLE_CLIENT_ID` | `EXPO_PUBLIC_GOOGLE_CLIENT_ID` | Google OAuth client ID; its `aud` must match the server's `GOOGLE_CLIENT_ID` |
 | Dev login | — | `EXPO_PUBLIC_DEV_LOGIN` (read on **both** platforms at build time) | `1` enables the "Use API key" login (paste the server's `STUDIO_API_KEY`). Always on in `__DEV__` |
 
+**Naming:** each value has one canonical name, `EXPO_PUBLIC_*`, used in `.env`, Infisical (`/mostro-app`) and CI. That follows Expo's convention for public client values. On web the prefix does not mean "inlined": the deploy workflow copies those values into `config.js` under the unprefixed keys above, and `runtime-config.ts` never reads `process.env`. The server's own copy is `GOOGLE_CLIENT_ID` (it must hold the same value).
+
 Web: `cp public/config.js.example public/config.js` (gitignored). See [docker-web-runtime-config.md](docker-web-runtime-config.md).
 
 Routes on mostro-server have **no `/api` prefix**: `/users/me`, `/agents/mostro-supervisor/openui`.
