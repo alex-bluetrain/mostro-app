@@ -1,0 +1,64 @@
+# Secret scanning rules for this (public) repo.
+#
+# On top of gitleaks' default rules (API keys, tokens, private keys) these cover
+# the kind of data that has already leaked once: infra hostnames, IPs and
+# personal data.
+#
+# Rules describe the *pattern*, never the concrete value. Putting the real
+# domain or email here would publish it again.
+
+title = "mostro-app"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "infra-hostname"
+description = "Own infra hostname (DuckDNS, ngrok): resolves to the VM or a dev tunnel"
+regex = '''[a-z0-9][a-z0-9-]*\.(duckdns\.org|ngrok-free\.app|ngrok\.io)'''
+tags = ["infra", "hostname"]
+
+[[rules]]
+id = "gcp-project-id"
+description = "This project's GCP project ID (name-NNNNNN)"
+regex = '''\bmostro-[0-9]{6}\b'''
+tags = ["infra", "gcp"]
+
+[[rules]]
+id = "public-ipv4"
+description = "Hardcoded public IPv4 (private and documentation ranges are allowed)"
+# gitleaks uses RE2 (no lookahead): match any IPv4 and drop the
+# non-sensitive ranges via allowlist.
+regex = '''\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'''
+tags = ["infra", "ip"]
+[rules.allowlist]
+regexTarget = "match"
+regexes = [
+  # Private and local: 10/8, 127/8, 192.168/16, 169.254/16, 172.16-31/12.
+  '''^10\.''',
+  '''^127\.''',
+  '''^192\.168\.''',
+  '''^169\.254\.''',
+  '''^172\.(?:1[6-9]|2[0-9]|3[01])\.''',
+  # Documentation ranges (RFC 5737) and 0.x/255.x.
+  '''^192\.0\.2\.''',
+  '''^198\.51\.100\.''',
+  '''^203\.0\.113\.''',
+  '''^0\.''',
+  '''^255\.''',
+  # semver-ish versions like 1.2.3.4 that are not IPs.
+  '''^[01]\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$''',
+]
+paths = [
+  '''pnpm-lock\.yaml''',
+  '''package-lock\.json''',
+]
+
+[[rules]]
+id = "personal-email"
+description = "Real personal email (use @example.com in docs and fixtures)"
+regex = '''[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook|yahoo|live|icloud)\.[a-z.]{2,}'''
+tags = ["pii", "email"]
+
+# Real names and addresses can't be expressed as a pattern without writing them
+# here. They are covered by convention: see "Sensitive data" in AGENTS.md.
