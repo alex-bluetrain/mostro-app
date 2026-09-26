@@ -25,7 +25,7 @@ Local web dev (`pnpm web`) also needs `public/config.js`: the dev server serves 
 - **Docker** (`Dockerfile` + `docker/nginx.conf`): nginx serves `dist/` with an expo-router SPA fallback. `config.js` is whatever sat in `public/` at build time; the build fails if it is missing. To swap it without rebuilding, mount a file over it:
 
   ```sh
-  docker run -v ./config.js:/usr/share/nginx/html/config.js:ro -p 8081:80 mostro-app-web
+  docker run -v ./config.js:/usr/share/nginx/html/config.js:ro -p 8080:80 mostro-app-web
   ```
 
 The only build arg is `EXPO_PUBLIC_DEV_LOGIN`; server URL and client ID always come from `config.js`.
