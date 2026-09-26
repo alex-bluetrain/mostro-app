@@ -9,6 +9,7 @@ import { SettingsContent } from '@/components/settings/settings-content';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Radius, Spacing } from '@/constants/theme';
+import { webDarkTheme, webLightTheme } from '@/constants/web-theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { mostroLLM } from '@/lib/mostro-llm';
@@ -37,7 +38,11 @@ export default function ChatScreen() {
         llm={mostroLLM}
         componentLibrary={openuiChatLibrary}
         agentName="mostro"
-        theme={{ mode: scheme === 'dark' ? 'dark' : 'light' }}>
+        theme={{
+          mode: scheme === 'dark' ? 'dark' : 'light',
+          lightTheme: webLightTheme,
+          darkTheme: webDarkTheme,
+        }}>
         <AgentInterface.Sidebar>
           <AgentInterface.SidebarHeader />
           <AgentInterface.SidebarContent>
