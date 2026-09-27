@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/alex-bluetrain/mostro-app/compare/mostro-app-v1.2.0...mostro-app-v1.3.0) (2026-09-27)
+
+
+### Features
+
+* **web:** apply amber brand accent to the web chat ([6f9b521](https://github.com/alex-bluetrain/mostro-app/commit/6f9b5210629e23d26e5e64829bd70635ffad9034))
+* **web:** keep the login across reloads with a server session cookie ([61aa96f](https://github.com/alex-bluetrain/mostro-app/commit/61aa96f162c51fd39390c0a55764cf0527ea16b1))
+
 ## [1.2.0](https://github.com/alex-bluetrain/mostro-app/compare/mostro-app-v1.1.0...mostro-app-v1.2.0) (2026-09-23)
 
 
