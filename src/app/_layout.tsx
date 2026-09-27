@@ -2,6 +2,7 @@ import '@/lib/crypto-polyfill';
 
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -33,6 +34,8 @@ export default function RootLayout() {
               </Stack>
             </AuthGate>
           </AuthProvider>
+          {/* Follows the in-app theme, not the device's: light icons on dark. */}
+          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
