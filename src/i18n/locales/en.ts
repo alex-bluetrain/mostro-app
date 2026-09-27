@@ -13,6 +13,10 @@ export default {
   settings: {
     title: 'Settings',
     language: 'Language',
+    theme: 'Theme',
+    themeSystem: 'System',
+    themeLight: 'Light',
+    themeDark: 'Dark',
     account: 'Account',
     about: 'About',
     email: 'Email',

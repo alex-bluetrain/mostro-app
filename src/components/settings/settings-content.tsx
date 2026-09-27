@@ -9,11 +9,23 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SUPPORTED_LANGUAGES, setAppLanguage, type AppLanguage } from '@/i18n';
 import { useAuth } from '@/lib/auth-context';
+import {
+  THEME_PREFERENCES,
+  setThemePreference,
+  useThemePreference,
+  type ThemePreference,
+} from '@/lib/theme-preference';
 
 const LANGUAGE_LABELS: Record<AppLanguage, string> = {
   en: 'English',
   es: 'Español',
 };
+
+const THEME_LABEL_KEYS = {
+  system: 'settings.themeSystem',
+  light: 'settings.themeLight',
+  dark: 'settings.themeDark',
+} as const satisfies Record<ThemePreference, string>;
 
 function RadioMark({ selected }: { selected: boolean }) {
   const theme = useTheme();
@@ -127,6 +139,7 @@ export function SettingsContent({ onAfterSignOut }: { onAfterSignOut?: () => voi
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const { user, signOut } = useAuth();
+  const themePreference = useThemePreference();
 
   // i18n.language can be a full tag (e.g. "en-US"); compare by base code.
   const current = i18n.language.split('-')[0];
@@ -169,6 +182,18 @@ export function SettingsContent({ onAfterSignOut }: { onAfterSignOut?: () => voi
             label={LANGUAGE_LABELS[lng]}
             onPress={() => setAppLanguage(lng)}
             trailing={<RadioMark selected={lng === current} />}
+          />
+        ))}
+      </SettingsSection>
+
+      <SettingsSection title={t('settings.theme')}>
+        {THEME_PREFERENCES.map((preference, index) => (
+          <SettingsRow
+            key={preference}
+            first={index === 0}
+            label={t(THEME_LABEL_KEYS[preference])}
+            onPress={() => void setThemePreference(preference)}
+            trailing={<RadioMark selected={preference === themePreference} />}
           />
         ))}
       </SettingsSection>

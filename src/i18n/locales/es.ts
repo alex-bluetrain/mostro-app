@@ -15,6 +15,10 @@ const es: typeof en = {
   settings: {
     title: 'Ajustes',
     language: 'Idioma',
+    theme: 'Tema',
+    themeSystem: 'Sistema',
+    themeLight: 'Claro',
+    themeDark: 'Oscuro',
     account: 'Cuenta',
     about: 'Acerca de',
     email: 'Email',
