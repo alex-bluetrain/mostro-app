@@ -10,20 +10,24 @@ type Env = { MOSTRO_UPSTREAM_URL: string };
 
 export const onRequest = async ({ request, env }: { request: Request; env: Env }) => {
   const url = new URL(request.url);
-  const upstream = new URL(
-    url.pathname.replace(/^\/api/, '') + url.search,
-    env.MOSTRO_UPSTREAM_URL,
-  );
+  const upstream = new URL(env.MOSTRO_UPSTREAM_URL);
+  upstream.pathname = url.pathname.replace(/^\/api/, '') || '/';
+  upstream.search = url.search;
 
   const headers = new Headers(request.headers);
   headers.set('X-Forwarded-Host', url.host);
   headers.set('X-Forwarded-Proto', url.protocol.replace(':', ''));
+  headers.set('X-Forwarded-For', request.headers.get('CF-Connecting-IP') ?? '');
 
-  const res = await fetch(upstream, {
-    method: request.method,
-    headers,
-    body: request.body,
-    redirect: 'manual',
-  });
-  return new Response(res.body, res);
+  try {
+    const res = await fetch(upstream, {
+      method: request.method,
+      headers,
+      body: request.body,
+      redirect: 'manual',
+    });
+    return new Response(res.body, res);
+  } catch {
+    return new Response('Bad Gateway', { status: 502 });
+  }
 };
