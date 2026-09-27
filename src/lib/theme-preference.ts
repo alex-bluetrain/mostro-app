@@ -3,7 +3,7 @@ import { Appearance, Platform } from 'react-native';
 
 import { getStoredTheme, setStoredTheme } from '@/lib/theme-storage';
 
-export const THEME_PREFERENCES = ['system', 'light', 'dark'] as const;
+export const THEME_PREFERENCES = ['light', 'dark', 'system'] as const;
 export type ThemePreference = (typeof THEME_PREFERENCES)[number];
 
 let current: ThemePreference = 'system';
