@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.4.0](https://github.com/alex-bluetrain/mostro-app/compare/mostro-app-v1.3.0...mostro-app-v1.4.0) (2026-09-27)
+
+
+### Features
+
+* **settings:** add Telegram notifications toggle ([fe3cc62](https://github.com/alex-bluetrain/mostro-app/commit/fe3cc628b1795543cae4b13af1b2c49993454365))
+* **settings:** let users pick light, dark or system theme ([d01d695](https://github.com/alex-bluetrain/mostro-app/commit/d01d695bc3cf8a08ebf8411f61635f94aa9218b9))
+* **settings:** list themes as light, dark, system ([e8fbcf9](https://github.com/alex-bluetrain/mostro-app/commit/e8fbcf92c976f140133dd478b228ebe423917123))
+* **settings:** sync language and theme with the server ([a84d65b](https://github.com/alex-bluetrain/mostro-app/commit/a84d65b55d11be0775e2286e98396c217d1757e0))
+* **web:** load chat history on open, drop new-chat and thread list ([73775a5](https://github.com/alex-bluetrain/mostro-app/commit/73775a540da9928e01b6fc372044eb77a27619fe))
+* **web:** replace the chat sidebar with a settings menu ([85052c3](https://github.com/alex-bluetrain/mostro-app/commit/85052c316c5a861394b69e0bbf11f8881c9fce08))
+* **web:** show only the messages the model reads ([0acda30](https://github.com/alex-bluetrain/mostro-app/commit/0acda30c01d6183d12eae1e96c2e9aaccbcdff0e))
+
+
+### Bug Fixes
+
+* **settings:** label notifications toggle without naming the channel ([605fb9f](https://github.com/alex-bluetrain/mostro-app/commit/605fb9f7a1f4916cf34031a74bf6dd167240a166))
+* **ui:** use Material/SF symbols for menu and close icons ([6b584b0](https://github.com/alex-bluetrain/mostro-app/commit/6b584b0f71e9a3390657bc15941b43f2627b5dbd))
+
 ## [1.3.0](https://github.com/alex-bluetrain/mostro-app/compare/mostro-app-v1.2.0...mostro-app-v1.3.0) (2026-09-27)
 
 
