@@ -217,7 +217,6 @@ export function SettingsContent({ onAfterSignOut }: { onAfterSignOut?: () => voi
         <SettingsRow
           first
           label={t('settings.notificationsLabel')}
-          secondary={t('settings.notificationsHint')}
           onPress={() => toggleNotifications(!notifications)}
           trailing={
             <Switch
