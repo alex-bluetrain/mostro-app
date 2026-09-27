@@ -1,11 +1,7 @@
 export default {
   chat: {
-    composerPlaceholder: 'Ask mostro…',
-    send: 'Send',
-    emptyState: 'Ask mostro…',
     sessionExpired: 'Your session expired. Please sign in again.',
     genericError: 'Something went wrong.',
-    renderFailed: "This reply couldn't be displayed.",
     openSettings: 'Open settings',
     openMenu: 'Open menu',
     closeMenu: 'Close menu',

@@ -2,12 +2,8 @@ import type en from './en';
 
 const es: typeof en = {
   chat: {
-    composerPlaceholder: 'Preguntale a mostro…',
-    send: 'Enviar',
-    emptyState: 'Preguntale a mostro…',
     sessionExpired: 'Tu sesión expiró. Iniciá sesión de nuevo.',
     genericError: 'Algo salió mal.',
-    renderFailed: 'No se pudo mostrar esta respuesta.',
     openSettings: 'Abrir ajustes',
     openMenu: 'Abrir menú',
     closeMenu: 'Cerrar menú',

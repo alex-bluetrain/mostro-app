@@ -7,11 +7,12 @@ import { StyleSheet, View } from 'react-native';
 
 import { MenuButton } from '@/components/menu-button';
 import { SettingsDrawer } from '@/components/settings/settings-drawer';
+import { CHAT_THREAD_ID } from '@/constants/chat';
 import { Spacing } from '@/constants/theme';
 import { webDarkTheme, webLightTheme } from '@/constants/web-theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-context';
-import { mostroHistoryStorage, WEB_THREAD_ID } from '@/lib/mostro-history';
+import { mostroHistoryStorage } from '@/lib/mostro-history';
 import { mostroLLM } from '@/lib/mostro-llm';
 
 /**
@@ -59,7 +60,7 @@ export default function ChatScreen() {
 function LoadHistory() {
   const selectThread = useThreadList((s) => s.selectThread);
   useEffect(() => {
-    selectThread(WEB_THREAD_ID);
+    selectThread(CHAT_THREAD_ID);
   }, [selectThread]);
   return null;
 }
