@@ -21,3 +21,9 @@ Mastra `registerApiRoute()` mounts routes at the ROOT. There is NO `/api` prefix
 
 Before writing any route, verify against `registerApiRoute()` calls in
 `mostro-server/src/mastra/routes/`. Do not assume `/api` — it 404s here.
+
+# Local dev server — use `pnpm dev`
+
+Start the web app with `pnpm dev` (hot reload). Never `npx expo start` directly:
+the agent shell has `CI=true`, which disables Metro's file watcher and serves stale bundles.
+Dev API-key login: `EXPO_PUBLIC_DEV_LOGIN=1 pnpm dev`.
