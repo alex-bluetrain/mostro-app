@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
-import { type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -141,6 +141,14 @@ export function SettingsContent({ onAfterSignOut }: { onAfterSignOut?: () => voi
   const { t, i18n } = useTranslation();
   const { user, signOut } = useAuth();
   const themePreference = useThemePreference();
+  const [notifications, setNotifications] = useState(
+    (user?.preferences as { notifications?: boolean } | undefined)?.notifications ?? false,
+  );
+
+  const toggleNotifications = (enabled: boolean) => {
+    setNotifications(enabled);
+    void saveUserPreferences({ notifications: enabled });
+  };
 
   // i18n.language can be a full tag (e.g. "en-US"); compare by base code.
   const current = i18n.language.split('-')[0];
@@ -203,6 +211,23 @@ export function SettingsContent({ onAfterSignOut }: { onAfterSignOut?: () => voi
             trailing={<RadioMark selected={preference === themePreference} />}
           />
         ))}
+      </SettingsSection>
+
+      <SettingsSection title={t('settings.notifications')}>
+        <SettingsRow
+          first
+          label={t('settings.notificationsLabel')}
+          secondary={t('settings.notificationsHint')}
+          onPress={() => toggleNotifications(!notifications)}
+          trailing={
+            <Switch
+              value={notifications}
+              onValueChange={toggleNotifications}
+              trackColor={{ true: theme.tint, false: theme.border }}
+              accessibilityLabel={t('settings.notificationsLabel')}
+            />
+          }
+        />
       </SettingsSection>
 
       <SettingsSection title={t('settings.account')}>
