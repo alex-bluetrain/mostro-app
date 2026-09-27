@@ -18,3 +18,11 @@
 body {
   font-family: var(--font-display);
 }
+
+/* Web chat: one thread per user, so AgentInterface's sidebar (thread list) and
+ * its mobile header (sidebar toggle + new chat) have nothing to show. Settings
+ * open from our own menu button instead (src/app/index.web.tsx). */
+.openui-agent-sidebar-container,
+.openui-agent-mobile-header {
+  display: none !important;
+}
