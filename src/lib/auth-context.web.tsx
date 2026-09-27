@@ -11,6 +11,7 @@ import { MOSTRO_SERVER_URL } from '@/constants/auth';
 import i18n from '@/i18n';
 import type { AuthState } from '@/lib/auth-context';
 import { AuthError, fetchMe, type MostroUser } from '@/lib/mostro-client';
+import { applyUserPreferences } from '@/lib/user-preferences';
 import { clearIdToken, getIdToken, setIdToken } from '@/lib/token-storage';
 
 // Web auth: Google redirect login handled by the server, which answers with an
@@ -44,7 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const silent = opts?.silent ?? false;
       setError(null);
       try {
-        setUser(await fetchMe(token));
+        const me = await fetchMe(token);
+        applyUserPreferences(me);
+        setUser(me);
       } catch (e) {
         if (e instanceof AuthError) {
           await clearIdToken();

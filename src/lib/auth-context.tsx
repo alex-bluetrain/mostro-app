@@ -15,6 +15,7 @@ import { GOOGLE_CLIENT_ID } from '@/constants/auth';
 import i18n from '@/i18n';
 import { logger } from '@/lib/logger';
 import { AuthError, fetchMe, type MostroUser } from '@/lib/mostro-client';
+import { applyUserPreferences } from '@/lib/user-preferences';
 import { clearIdToken, getIdToken, setIdToken } from '@/lib/token-storage';
 
 GoogleSignin.configure({
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(null);
       try {
         const me = await fetchMe(idToken);
+        applyUserPreferences(me);
         setUser(me);
       } catch (e) {
         if (e instanceof AuthError) {

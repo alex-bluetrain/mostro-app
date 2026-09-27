@@ -15,6 +15,7 @@ import {
   useThemePreference,
   type ThemePreference,
 } from '@/lib/theme-preference';
+import { saveUserPreferences } from '@/lib/user-preferences';
 
 const LANGUAGE_LABELS: Record<AppLanguage, string> = {
   en: 'English',
@@ -180,7 +181,10 @@ export function SettingsContent({ onAfterSignOut }: { onAfterSignOut?: () => voi
             key={lng}
             first={index === 0}
             label={LANGUAGE_LABELS[lng]}
-            onPress={() => setAppLanguage(lng)}
+            onPress={() => {
+              void setAppLanguage(lng);
+              void saveUserPreferences({ language: lng });
+            }}
             trailing={<RadioMark selected={lng === current} />}
           />
         ))}
@@ -192,7 +196,10 @@ export function SettingsContent({ onAfterSignOut }: { onAfterSignOut?: () => voi
             key={preference}
             first={index === 0}
             label={t(THEME_LABEL_KEYS[preference])}
-            onPress={() => void setThemePreference(preference)}
+            onPress={() => {
+              void setThemePreference(preference);
+              void saveUserPreferences({ theme: preference });
+            }}
             trailing={<RadioMark selected={preference === themePreference} />}
           />
         ))}
