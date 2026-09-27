@@ -1,7 +1,8 @@
 import '@openuidev/react-ui/index.css';
 
+import { useThreadList } from '@openuidev/react-headless';
 import { AgentInterface, openuiChatLibrary } from '@openuidev/react-ui';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 
@@ -11,7 +12,9 @@ import { ThemedView } from '@/components/themed-view';
 import { Radius, Spacing } from '@/constants/theme';
 import { webDarkTheme, webLightTheme } from '@/constants/web-theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAuth } from '@/lib/auth-context';
 import { useTheme } from '@/hooks/use-theme';
+import { mostroHistoryStorage, WEB_THREAD_ID } from '@/lib/mostro-history';
 import { mostroLLM } from '@/lib/mostro-llm';
 
 const MAX_MODAL_WIDTH = 420;
@@ -31,11 +34,16 @@ export default function ChatScreen() {
   const scheme = useColorScheme();
   const { t } = useTranslation();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { user } = useAuth();
+  const email = user?.email ?? '';
+  const storage = useMemo(() => mostroHistoryStorage(email), [email]);
 
   return (
     <>
       <AgentInterface
+        key={email}
         llm={mostroLLM}
+        storage={storage}
         componentLibrary={openuiChatLibrary}
         agentName="mostro"
         theme={{
@@ -45,11 +53,7 @@ export default function ChatScreen() {
         }}>
         <AgentInterface.Sidebar>
           <AgentInterface.SidebarHeader />
-          <AgentInterface.SidebarContent>
-            <AgentInterface.NewChatButton />
-            <AgentInterface.SidebarSeparator />
-            <AgentInterface.ThreadList />
-          </AgentInterface.SidebarContent>
+          <AgentInterface.SidebarContent />
           <AgentInterface.SidebarSeparator />
           <AgentInterface.SidebarItem
             icon={<span aria-hidden>⚙</span>}
@@ -57,11 +61,21 @@ export default function ChatScreen() {
             {t('settings.title')}
           </AgentInterface.SidebarItem>
         </AgentInterface.Sidebar>
+        <LoadHistory />
       </AgentInterface>
 
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );
+}
+
+// One server thread per user: open it on mount so past messages load.
+function LoadHistory() {
+  const selectThread = useThreadList((s) => s.selectThread);
+  useEffect(() => {
+    selectThread(WEB_THREAD_ID);
+  }, [selectThread]);
+  return null;
 }
 
 function SettingsModal({
