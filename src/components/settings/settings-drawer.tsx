@@ -133,7 +133,7 @@ export function SettingsDrawer({
   }, [open]);
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+    <View style={styles.root} pointerEvents="box-none">
       <Animated.View
         style={[styles.backdrop, backdropStyle]}
         pointerEvents={open ? 'auto' : 'none'}>
@@ -154,7 +154,7 @@ export function SettingsDrawer({
               styles.header,
               { paddingTop: insets.top + Spacing.two, borderBottomColor: theme.border },
             ]}>
-            <ThemedText type="subtitle" style={styles.headerTitle}>
+            <ThemedText type="heading" style={styles.headerTitle}>
               {t('settings.title')}
             </ThemedText>
             <Pressable
@@ -164,27 +164,16 @@ export function SettingsDrawer({
               hitSlop={Spacing.two}
               style={({ hovered, pressed }) => [
                 styles.closeButton,
-                Platform.OS === 'web' && ({ cursor: 'pointer' } as object),
+                Platform.OS === 'web' && ({ cursor: 'pointer', outlineStyle: 'none' } as object),
                 (hovered || pressed) && {
                   backgroundColor: theme.backgroundSelected,
                 },
               ]}>
-              {Platform.OS === 'ios' ? (
-                <SymbolView
-                  name="xmark"
-                  size={20}
-                  tintColor={theme.textSecondary}
-                  fallback={
-                    <ThemedText type="subtitle" themeColor="textSecondary">
-                      ✕
-                    </ThemedText>
-                  }
-                />
-              ) : (
-                <ThemedText type="subtitle" themeColor="textSecondary">
-                  ✕
-                </ThemedText>
-              )}
+              <SymbolView
+                name={{ ios: 'xmark', android: 'close', web: 'close' }}
+                size={24}
+                tintColor={theme.textSecondary}
+              />
             </Pressable>
           </View>
           <View style={[styles.body, { paddingBottom: insets.bottom }]}>
@@ -197,6 +186,11 @@ export function SettingsDrawer({
 }
 
 const styles = StyleSheet.create({
+  // Above the chat's own stacked layers (web: OpenUI's scroll fades use z-index).
+  root: {
+    ...StyleSheet.absoluteFill,
+    zIndex: 10,
+  },
   backdrop: {
     position: 'absolute',
     top: 0,
@@ -231,8 +225,8 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   closeButton: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
