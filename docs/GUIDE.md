@@ -31,7 +31,9 @@ Routes on mostro-server have **no `/api` prefix**: `/users/me`, `/agents/mostro-
 
 ## Deploy (web)
 
-`pnpm deploy:web` exports the static build and uploads it to Cloudflare Pages. For the Docker image and runtime config, see [docker-web-runtime-config.md](docker-web-runtime-config.md).
+`pnpm deploy:web` exports the static build and uploads it to Cloudflare Pages.
+
+**Web login** is a server-side Google redirect that leaves an HttpOnly session cookie (no token in the browser, survives reloads). For the cookie to be first-party, the Pages Function `functions/api/[[path]].ts` proxies `/api/*` to the server: set the Pages env var `MOSTRO_UPSTREAM_URL` to the real server and the web `MOSTRO_SERVER_URL` to `https://<PROD_DOMAIN>/api`. Server side: mostro-server `docs/web-session.md`. For the Docker image and runtime config, see [docker-web-runtime-config.md](docker-web-runtime-config.md).
 
 ## Known limitations
 

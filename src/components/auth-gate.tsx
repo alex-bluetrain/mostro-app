@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -17,8 +17,6 @@ import { DEV_API_KEY_LOGIN } from '@/constants/auth';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth-context';
-
-const isWeb = Platform.OS === 'web';
 
 function ApiKeyLogin() {
   const { t } = useTranslation();
@@ -71,19 +69,9 @@ function ApiKeyLogin() {
 }
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
-  const { user, loading, error, requestReady, signIn, renderGoogleButton } =
-    useAuth();
-  const googleButtonRef = useRef<View>(null);
-
-  // Re-runs on language change so the GIS widget re-renders in the new locale.
-  useEffect(() => {
-    if (!isWeb || user || loading || !requestReady) {
-      return;
-    }
-    renderGoogleButton(googleButtonRef.current as unknown as HTMLElement | null);
-  }, [user, loading, requestReady, renderGoogleButton, i18n.language]);
+  const { user, loading, error, signIn } = useAuth();
 
   if (loading) {
     return (
@@ -106,19 +94,14 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         <ThemedText type="title">mostro</ThemedText>
         <ThemedText type="default">{t('auth.signInToContinue')}</ThemedText>
 
-        {isWeb ? (
-          <View ref={googleButtonRef} style={styles.googleButtonContainer} />
-        ) : (
-          <Pressable
-            style={[styles.button, { backgroundColor: theme.tint }]}
-            disabled={!requestReady}
-            onPress={signIn}
-          >
-            <ThemedText type="smallBold" style={{ color: theme.onTint }}>
-              {t('auth.continueWithGoogle')}
-            </ThemedText>
-          </Pressable>
-        )}
+        <Pressable
+          style={[styles.button, { backgroundColor: theme.tint }]}
+          onPress={signIn}
+        >
+          <ThemedText type="smallBold" style={{ color: theme.onTint }}>
+            {t('auth.continueWithGoogle')}
+          </ThemedText>
+        </Pressable>
 
         {DEV_API_KEY_LOGIN && <ApiKeyLogin />}
 
@@ -147,12 +130,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: Spacing.three,
     right: Spacing.three,
-  },
-  googleButtonContainer: {
-    marginTop: Spacing.three,
-    minHeight: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   button: {
     paddingVertical: Spacing.three,

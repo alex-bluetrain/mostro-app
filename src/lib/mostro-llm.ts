@@ -3,7 +3,7 @@ import { fetch } from 'expo/fetch';
 import { agUIAdapter, type ChatLLM, type Message } from '@openuidev/react-headless';
 
 import { MOSTRO_SERVER_URL } from '@/constants/auth';
-import { AuthError } from '@/lib/mostro-client';
+import { AuthError, authHeaders } from '@/lib/mostro-client';
 import { getIdToken } from '@/lib/token-storage';
 
 /**
@@ -12,7 +12,7 @@ import { getIdToken } from '@/lib/token-storage';
  *
  * Contract (mostro-server/src/mastra/routes/ag-ui.route.ts):
  * - POST ${MOSTRO_SERVER_URL}/agents/mostro-supervisor/openui
- * - Auth: Bearer <Google id_token>. Body accepts { messages, state? }; we send
+ * - Auth: Bearer <Google id_token> (native), or the session cookie (web). Body accepts { messages, state? }; we send
  *   only { messages }. threadId/runId are derived server-side from the token.
  * - Response: text/event-stream of AG-UI events, parsed by `agUIAdapter`.
  *
@@ -25,15 +25,12 @@ export const mostroLLM: ChatLLM = {
   streamProtocol: agUIAdapter(),
   async send({ messages, signal }: { messages: Message[]; signal: AbortSignal }) {
     const token = await getIdToken();
-    if (!token) throw new AuthError(401);
 
     const response = await fetch(`${MOSTRO_SERVER_URL}/agents/mostro-supervisor/openui`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { ...authHeaders(token), 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages }),
+      credentials: 'include',
       signal,
     });
 

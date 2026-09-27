@@ -25,15 +25,11 @@ export type AuthState = {
   user: MostroUser | null;
   loading: boolean;
   error: string | null;
-  // Only the web variant uses this (GIS renderButton). On native it's a no-op
-  // so the shared AuthGate has a single contract across platforms.
-  requestReady: boolean;
   signIn: () => void;
   // Dev-only: authenticate by pasting an API key (SimpleAuth token) instead of
   // going through Google. The key is sent as Bearer just like an id_token.
   signInWithApiKey: (apiKey: string) => Promise<void>;
   signOut: () => Promise<void>;
-  renderGoogleButton: (parent: HTMLElement | null) => void;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -130,11 +126,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         loading,
         error,
-        requestReady: true,
         signIn,
         signInWithApiKey,
         signOut,
-        renderGoogleButton: () => {},
       }}
     >
       {children}

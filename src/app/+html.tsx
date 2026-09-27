@@ -2,9 +2,7 @@ import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
 // Resolves the app language before paint using the same priority chain as
-// src/i18n: stored selection → browser locale → 'en'. Sets <html lang> and
-// loads the Google Sign-In script with the matching locale (?hl=), since GIS
-// resolves its widget locale at script load time.
+// src/i18n: stored selection → browser locale → 'en'. Sets <html lang>.
 // The 'mostro_language' key must match src/i18n/language-storage.web.ts.
 const bootLocaleScript = `
 (function () {
@@ -18,10 +16,6 @@ const bootLocaleScript = `
     lang = 'en';
   }
   document.documentElement.lang = lang;
-  var s = document.createElement('script');
-  s.src = 'https://accounts.google.com/gsi/client?hl=' + lang;
-  s.async = true;
-  document.head.appendChild(s);
 })();
 `;
 

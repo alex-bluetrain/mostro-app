@@ -6,15 +6,19 @@ export type MostroUser = {
   [key: string]: unknown;
 };
 
-export async function fetchMe(idToken: string): Promise<MostroUser> {
+// Without a token the request relies on the web session cookie (web only).
+export function authHeaders(token: string | null | undefined): Record<string, string> {
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export async function fetchMe(idToken?: string | null): Promise<MostroUser> {
   const endpoint = `${MOSTRO_SERVER_URL}/users/me`;
 
   let res: Response;
   try {
     res = await fetch(endpoint, {
-      headers: {
-        Authorization: `Bearer ${idToken}`,
-      },
+      headers: authHeaders(idToken),
+      credentials: 'include',
     });
   } catch (cause) {
     // fetch rejects on network failure (offline, DNS, tunnel down). status 0
