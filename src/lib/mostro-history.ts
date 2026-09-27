@@ -7,7 +7,9 @@ import { getIdToken } from '@/lib/token-storage';
 // Each web user has exactly one server thread (`<email>:web`); the server
 // ignores the client thread id, so a constant is enough.
 export const WEB_THREAD_ID = 'web';
-const HISTORY_LIMIT = 1000;
+// Show only what the model reads: Mastra's default `lastMessages` is 10.
+// The route returns the newest page in chronological order.
+const HISTORY_LIMIT = 10;
 
 type StoredPart = { type: string; text?: string };
 type StoredMessage = {
