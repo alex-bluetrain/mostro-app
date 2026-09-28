@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.0](https://github.com/alex-bluetrain/mostro-app/compare/mostro-app-v1.4.0...mostro-app-v1.5.0) (2026-09-28)
+
+
+### Features
+
+* **chat:** always send X-Mostro-Client, web included ([06c1a5a](https://github.com/alex-bluetrain/mostro-app/commit/06c1a5a63409178789b8830a6ef2c90fb919ee20))
+* **native:** per-client chat thread, keyboard-aware chat and login ([096d339](https://github.com/alex-bluetrain/mostro-app/commit/096d33995d2c70637da4ee40b55cbf81e676831a))
+* **native:** use the web AgentInterface chat on Android ([3ff7c2d](https://github.com/alex-bluetrain/mostro-app/commit/3ff7c2dfcb4f4d21389f33dfe4dbefa9bc86f930))
+
+
+### Bug Fixes
+
+* **native:** make the status bar follow the in-app theme ([43fa9df](https://github.com/alex-bluetrain/mostro-app/commit/43fa9dfd4b36cc5a0c019cb5492d9190d2fab3fa))
+
 ## [1.4.0](https://github.com/alex-bluetrain/mostro-app/compare/mostro-app-v1.3.0...mostro-app-v1.4.0) (2026-09-27)
 
 
