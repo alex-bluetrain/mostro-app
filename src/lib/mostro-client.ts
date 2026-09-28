@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import { MOSTRO_SERVER_URL } from '@/constants/auth';
 import { logger } from '@/lib/logger';
 
@@ -9,6 +11,14 @@ export type MostroUser = {
 // Without a token the request relies on the web session cookie (web only).
 export function authHeaders(token: string | null | undefined): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+// The server keeps one chat thread per client, `<email>:<channel>`, picked by
+// this header (mostro-server web-thread.ts). Web sends none and gets `web`.
+export const CHAT_CHANNEL = Platform.OS === 'android' ? 'android' : 'web';
+
+export function chatClientHeaders(): Record<string, string> {
+  return CHAT_CHANNEL === 'web' ? {} : { 'X-Mostro-Client': CHAT_CHANNEL };
 }
 
 export async function fetchMe(idToken?: string | null): Promise<MostroUser> {

@@ -1,9 +1,7 @@
 import type { Message } from '@openuidev/react-headless';
 
-import { CHAT_THREAD_ID } from '@/constants/chat';
 import { logger } from '@/lib/logger';
-import { AuthError } from '@/lib/mostro-client';
-import { mostroHistoryStorage } from '@/lib/mostro-history';
+import { AuthError, CHAT_CHANNEL } from '@/lib/mostro-client';
 import { mostroLLM } from '@/lib/mostro-llm';
 
 /**
@@ -63,7 +61,7 @@ export async function startChatRun(messages: Message[]): Promise<ChatRunStart> {
   const run: Run = { chunks: [], done: false, controller: new AbortController() };
   try {
     const response = await mostroLLM.send({
-      threadId: CHAT_THREAD_ID,
+      threadId: CHAT_CHANNEL,
       messages,
       signal: run.controller.signal,
     });
@@ -102,6 +100,8 @@ export async function cancelChatRun(runId: string): Promise<void> {
   wake(run);
 }
 
-export async function loadChatHistory(email: string): Promise<Message[]> {
-  return mostroHistoryStorage(email).thread.getMessages(CHAT_THREAD_ID);
+// A run is freed when the webview pulls its end. If the webview goes away
+// mid-reply (sign-out, unmount), nothing will, so drop them all.
+export function cancelAllChatRuns(): void {
+  for (const runId of [...runs.keys()]) void cancelChatRun(runId);
 }

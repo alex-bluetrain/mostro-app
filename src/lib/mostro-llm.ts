@@ -3,7 +3,7 @@ import { fetch } from 'expo/fetch';
 import { agUIAdapter, type ChatLLM, type Message } from '@openuidev/react-headless';
 
 import { MOSTRO_SERVER_URL } from '@/constants/auth';
-import { AuthError, authHeaders } from '@/lib/mostro-client';
+import { AuthError, authHeaders, chatClientHeaders } from '@/lib/mostro-client';
 import { getIdToken } from '@/lib/token-storage';
 
 /**
@@ -28,7 +28,11 @@ export const mostroLLM: ChatLLM = {
 
     const response = await fetch(`${MOSTRO_SERVER_URL}/agents/mostro-supervisor/openui`, {
       method: 'POST',
-      headers: { ...authHeaders(token), 'Content-Type': 'application/json' },
+      headers: {
+        ...authHeaders(token),
+        ...chatClientHeaders(),
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ messages }),
       credentials: 'include',
       signal,

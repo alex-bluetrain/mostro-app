@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LanguageSelector } from '@/components/language-selector';
@@ -42,7 +43,7 @@ function ApiKeyLogin() {
       <TextInput
         style={[
           styles.input,
-          { borderColor: theme.border, color: theme.placeholder },
+          { borderColor: theme.border, color: theme.text },
           Platform.OS === 'web' && { fontFamily: Fonts.sans },
         ]}
         value={apiKey}
@@ -53,6 +54,7 @@ function ApiKeyLogin() {
         autoCorrect={false}
         secureTextEntry
         editable={!submitting}
+        returnKeyType="go"
         onSubmitEditing={submit}
       />
       <Pressable
@@ -86,36 +88,43 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemedView style={styles.centered}>
+    <ThemedView style={styles.root}>
+      {/* Re-centers the form above the keyboard so the key field and its
+          button stay visible while typing. */}
+      <KeyboardAvoidingView style={styles.centered} behavior="padding">
+        <SafeAreaView style={styles.content}>
+          <ThemedText type="title">mostro</ThemedText>
+          <ThemedText type="default">{t('auth.signInToContinue')}</ThemedText>
+
+          <Pressable
+            style={[styles.button, { backgroundColor: theme.tint }]}
+            onPress={signIn}
+          >
+            <ThemedText type="smallBold" style={{ color: theme.onTint }}>
+              {t('auth.continueWithGoogle')}
+            </ThemedText>
+          </Pressable>
+
+          {DEV_API_KEY_LOGIN && <ApiKeyLogin />}
+
+          {error && (
+            <ThemedText type="small" style={[styles.error, { color: theme.error }]}>
+              {error}
+            </ThemedText>
+          )}
+        </SafeAreaView>
+      </KeyboardAvoidingView>
       <SafeAreaView style={styles.languageCorner}>
         <LanguageSelector />
-      </SafeAreaView>
-      <SafeAreaView style={styles.content}>
-        <ThemedText type="title">mostro</ThemedText>
-        <ThemedText type="default">{t('auth.signInToContinue')}</ThemedText>
-
-        <Pressable
-          style={[styles.button, { backgroundColor: theme.tint }]}
-          onPress={signIn}
-        >
-          <ThemedText type="smallBold" style={{ color: theme.onTint }}>
-            {t('auth.continueWithGoogle')}
-          </ThemedText>
-        </Pressable>
-
-        {DEV_API_KEY_LOGIN && <ApiKeyLogin />}
-
-        {error && (
-          <ThemedText type="small" style={[styles.error, { color: theme.error }]}>
-            {error}
-          </ThemedText>
-        )}
       </SafeAreaView>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   centered: {
     flex: 1,
     justifyContent: 'center',
@@ -132,6 +141,7 @@ const styles = StyleSheet.create({
     right: Spacing.three,
   },
   button: {
+    alignItems: 'center',
     paddingVertical: Spacing.three,
     paddingHorizontal: Spacing.four,
     borderRadius: Radius.card,

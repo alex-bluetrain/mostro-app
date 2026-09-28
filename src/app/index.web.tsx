@@ -1,19 +1,19 @@
 import '@openuidev/react-ui/index.css';
 
-import { useThreadList } from '@openuidev/react-headless';
 import { AgentInterface, openuiChatLibrary } from '@openuidev/react-ui';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { MenuButton } from '@/components/menu-button';
 import { SettingsDrawer } from '@/components/settings/settings-drawer';
-import { CHAT_THREAD_ID } from '@/constants/chat';
 import { Spacing } from '@/constants/theme';
 import { webDarkTheme, webLightTheme } from '@/constants/web-theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-context';
-import { mostroHistoryStorage } from '@/lib/mostro-history';
+import { CHAT_CHANNEL } from '@/lib/mostro-client';
+import { fetchChatHistory } from '@/lib/mostro-history';
 import { mostroLLM } from '@/lib/mostro-llm';
+import { OpenChatThread, singleThreadStorage } from '@/lib/single-thread-chat';
 
 /**
  * Web chat screen.
@@ -29,7 +29,7 @@ export default function ChatScreen() {
   const scheme = useColorScheme();
   const { user } = useAuth();
   const email = user?.email ?? '';
-  const storage = useMemo(() => mostroHistoryStorage(email), [email]);
+  const storage = useMemo(() => singleThreadStorage(CHAT_CHANNEL, () => fetchChatHistory(email)), [email]);
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -45,7 +45,7 @@ export default function ChatScreen() {
           lightTheme: webLightTheme,
           darkTheme: webDarkTheme,
         }}>
-        <LoadHistory />
+        <OpenChatThread threadId={CHAT_CHANNEL} />
       </AgentInterface>
 
       <View style={styles.menuButton}>
@@ -54,15 +54,6 @@ export default function ChatScreen() {
       <SettingsDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
     </>
   );
-}
-
-// One server thread per user: open it on mount so past messages load.
-function LoadHistory() {
-  const selectThread = useThreadList((s) => s.selectThread);
-  useEffect(() => {
-    selectThread(CHAT_THREAD_ID);
-  }, [selectThread]);
-  return null;
 }
 
 const styles = StyleSheet.create({

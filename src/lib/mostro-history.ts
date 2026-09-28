@@ -1,8 +1,7 @@
-import type { ChatStorage, Message } from '@openuidev/react-headless';
+import type { Message } from '@openuidev/react-headless';
 
 import { MOSTRO_SERVER_URL } from '@/constants/auth';
-import { CHAT_THREAD_ID } from '@/constants/chat';
-import { authHeaders } from '@/lib/mostro-client';
+import { authHeaders, CHAT_CHANNEL } from '@/lib/mostro-client';
 import { getIdToken } from '@/lib/token-storage';
 
 // Show only what the model reads: Mastra's default `lastMessages` is 10.
@@ -29,31 +28,16 @@ function toChatMessage(m: StoredMessage): Message | null {
   return null;
 }
 
-export function mostroHistoryStorage(email: string): ChatStorage {
-  return {
-    thread: {
-      async listThreads() {
-        return { threads: [] };
-      },
-      async createThread() {
-        return { id: CHAT_THREAD_ID, title: 'mostro', createdAt: Date.now() };
-      },
-      async getMessages() {
-        // Built-in Mastra memory route: unlike our custom routes it lives under /api.
-        const threadId = encodeURIComponent(`${email}:web`);
-        const res = await fetch(
-          `${MOSTRO_SERVER_URL}/api/memory/threads/${threadId}/messages?agentId=mostro-supervisor&perPage=${HISTORY_LIMIT}`,
-          { headers: authHeaders(await getIdToken()), credentials: 'include' },
-        );
-        if (res.status === 404) return [];
-        if (!res.ok) throw new Error(`mostro history failed: ${res.status}`);
-        const { messages } = (await res.json()) as { messages: StoredMessage[] };
-        return messages.map(toChatMessage).filter((m): m is Message => m !== null);
-      },
-      async updateThread(thread) {
-        return thread;
-      },
-      async deleteThread() {},
-    },
-  };
+// The user's thread history, as the model sees it.
+export async function fetchChatHistory(email: string): Promise<Message[]> {
+  // Built-in Mastra memory route: unlike our custom routes it lives under /api.
+  const threadId = encodeURIComponent(`${email}:${CHAT_CHANNEL}`);
+  const res = await fetch(
+    `${MOSTRO_SERVER_URL}/api/memory/threads/${threadId}/messages?agentId=mostro-supervisor&perPage=${HISTORY_LIMIT}`,
+    { headers: authHeaders(await getIdToken()), credentials: 'include' },
+  );
+  if (res.status === 404) return [];
+  if (!res.ok) throw new Error(`mostro history failed: ${res.status}`);
+  const { messages } = (await res.json()) as { messages: StoredMessage[] };
+  return messages.map(toChatMessage).filter((m): m is Message => m !== null);
 }

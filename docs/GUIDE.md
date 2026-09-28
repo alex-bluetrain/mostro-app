@@ -5,7 +5,7 @@
 | Path | What lives there |
 | --- | --- |
 | `src/app/index.web.tsx` | Web chat: OpenUI's `AgentInterface` (sidebar, threads, streaming, settings modal) |
-| `src/app/index.tsx` | Native (Android/iOS) chat: `ChatProvider` + `useThread`, one Expo DOM webview per assistant message |
+| `src/app/index.tsx` | Native (Android/iOS) chat: the same `AgentInterface` in one Expo DOM webview, requests relayed by `src/lib/chat-bridge.ts` — see [NATIVE-CHAT.md](NATIVE-CHAT.md) |
 | `src/lib/mostro-llm.ts` | The `ChatLLM` adapter both platforms use to stream from mostro-server (AG-UI over SSE) |
 | `src/lib/auth-context*.tsx` | Google Sign-In (native SDK on Android, Google Identity Services on web) |
 | `src/lib/token-storage*.ts` | `id_token` storage: SecureStore on Android, memory on web |
@@ -39,4 +39,3 @@ Routes on mostro-server have **no `/api` prefix**: `/users/me`, `/agents/mostro-
 
 - **Web token storage is memory-only.** A page refresh logs the user out.
 - **No token refresh.** Google id_tokens expire after ~1h and there is no silent re-auth; the user signs in again.
-- **Android renders one webview per assistant message.** Web uses `AgentInterface` directly. Moving Android to `AgentInterface` needs a single `'use dom'` wrapper plus a native proxy for auth/streaming (SecureStore, `expo/fetch` and function props don't cross the DOM bridge).
