@@ -14,11 +14,16 @@ export function authHeaders(token: string | null | undefined): Record<string, st
 }
 
 // The server keeps one chat thread per client, `<email>:<channel>`, picked by
-// this header (mostro-server web-thread.ts). Web sends none and gets `web`.
-export const CHAT_CHANNEL = Platform.OS === 'android' ? 'android' : 'web';
+// this required header (mostro-server web-thread.ts). iOS will get `ios` when it ships.
+function chatChannel(): 'web' | 'android' {
+  if (Platform.OS === 'web' || Platform.OS === 'android') return Platform.OS;
+  throw new Error(`Chat is not supported on ${Platform.OS} yet`);
+}
+
+export const CHAT_CHANNEL = chatChannel();
 
 export function chatClientHeaders(): Record<string, string> {
-  return CHAT_CHANNEL === 'web' ? {} : { 'X-Mostro-Client': CHAT_CHANNEL };
+  return { 'X-Mostro-Client': CHAT_CHANNEL };
 }
 
 export async function fetchMe(idToken?: string | null): Promise<MostroUser> {
